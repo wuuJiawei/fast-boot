@@ -6,42 +6,65 @@
     <groupId>com.w</groupId>
     <artifactId>fast-boot</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <modules>
-        <module>core</module>
-        <module>gen</module>
-        <module>api</module>
-        <module>console</module>
-    </modules>
     <packaging>pom</packaging>
 
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.test.skip>true</maven.test.skip>
+
+        <!-- 依赖版本号 -->
+        <fast.boot.version>1.0-SNAPSHOT</fast.boot.version>
+        <spring.boot.version>2.2.2.RELEASE</spring.boot.version>
+        <lombok.version>1.18.10</lombok.version>
     </properties>
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.7.RELEASE</version>
-    </parent>
+    <!-- 依赖声明 -->
+    <dependencyManagement>
+        <dependencies>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
-        </dependency>
+            <!-- SpringBoot的依赖配置-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
 
-    </dependencies>
+
+            <!-- 核心模块 -->
+            <dependency>
+                <groupId>com.w</groupId>
+                <artifactId>core</artifactId>
+                <version>${fast.boot.version}</version>
+            </dependency>
+
+            <!-- 控制台 -->
+            <dependency>
+                <groupId>com.w</groupId>
+                <artifactId>console</artifactId>
+                <version>${fast.boot.version}</version>
+            </dependency>
+
+            <!-- 开发神器 -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+        </dependencies>
+
+
+    </dependencyManagement>
+
+    <modules>
+        <module>core</module>
+        <module>console</module>
+        <module>generator</module>
+    </modules>
 
     <build>
         <plugins>
@@ -49,12 +72,26 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <parameters>true</parameters>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>alimaven</id>
+            <name>aliyun maven</name>
+            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
 </project>
