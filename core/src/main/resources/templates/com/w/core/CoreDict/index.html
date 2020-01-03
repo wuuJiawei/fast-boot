@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>数据字典管理</title>
+    <link rel="stylesheet" href="${ctxPath}/assets/libs/layui/css/layui.css"/>
+    <link rel="stylesheet" href="${ctxPath}/assets/module/admin.css"/>
+    <style>
+
+    </style>
+</head>
+
+<body>
+<% include("../../../../layout/loading.html"){} %>
+
+<!-- 正文开始 -->
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form class="layui-form toolbar" id="tableToolBar" action="javascript:;">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <div class="layui-form-item" pane>
+                            <label class="layui-form-label">标题</label>
+                            <div class="layui-input-block">
+                                <input class="layui-input" id="param_title"  name="param@like@title" type="text" placeholder="标题"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <input class="layui-input" id="param_ctime" readonly name="param@between@ctime" type="text" placeholder="创建时间"/>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-form-item" pane>
+                            <label class="layui-form-label">状态</label>
+                            <div class="layui-input-block">
+                                <select name="param@eq@disabled">
+                                    <option value="">请选择</option>
+                                    <option value="0">启用</option>
+                                    <option value="1">关闭</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button id="btnSearch" lay-filter="toolbarSearch" lay-submit class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
+                        <button id="btnAdd" class="layui-btn icon-btn"><i class="layui-icon">&#xe654;</i>添加</button>
+                        <button id="btnDelete" class="layui-btn icon-btn"><i class="layui-icon layui-icon-delete"></i> 删除</button>
+                    </div>
+                </div>
+            </form>
+            <table class="layui-table" id="table" lay-filter="table"></table>
+        </div>
+    </div>
+</div>
+
+<!-- 表格操作列 -->
+<script type="text/html" id="tableBar">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="reUpload">播放地址</a>
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="tag">标签</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<!-- 表格状态列 -->
+<script type="text/html" id="tableState">
+    <input type="checkbox" lay-filter="ckStateUser" value="{{d.id}}" lay-skin="switch"
+           lay-text="启用|关闭" {{d.disabled==0?'checked':''}}/>
+</script>
+
+<!-- 表单弹窗 -->
+<div id="modal" type="text/html" style="display: none;">
+    <form id="modalForm" lay-filter="modalForm" class="layui-form model-form">
+
+        <input name="id" id="id" type="hidden"/>
+
+        <div class="layui-row">
+            <div class="layui-col-md5">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">标题</label>
+                    <div class="layui-input-block">
+                        <input name="title" placeholder="标题" type="text" class="layui-input"
+                               lay-verType="tips" lay-verify="required" required/>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md7">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">子标题</label>
+                    <div class="layui-input-block">
+                        <input name="subTitle" placeholder="子标题" type="text" class="layui-input"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="layui-row">
+            <div class="layui-col-md4">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">分类</label>
+                    <div class="layui-input-block">
+                        <select name="typeId">
+                            <option value="">请选择</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">简介</label>
+                    <div class="layui-input-block">
+                        <textarea name="description" placeholder="简介" class="layui-textarea"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="layui-row">
+            <div class="layui-col-md12">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">封面</label>
+                    <div class="layui-input-block">
+                        <input name="cover" placeholder="封面" type="text" class="layui-input"
+                               lay-verType="tips" lay-verify="required" required/>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"></label>
+                    <div class="layui-input-block">
+                        <img class="layui-upload-img" id="img-thumb" src="" style="max-width:100px;max-height:100px;">
+                        <button type="button" class="layui-btn" id="upload-thumb">上传图片</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="layui-row">
+            <div class="layui-col-md4">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">播放次数</label>
+                    <div class="layui-input-block">
+                        <input name="playNumber" placeholder="播放次数" type="text" class="layui-input"
+                               lay-verType="tips" lay-verify="required" required value="0"/>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md4">
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">收藏数量</label>
+                    <div class="layui-input-block">
+                        <input name="likeNumber" placeholder="收藏数量" type="text" class="layui-input"
+                               lay-verType="tips" lay-verify="required" required value="0"/>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md4">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">评分</label>
+                    <div class="layui-input-block">
+                        <input name="score" placeholder="评分" type="text" class="layui-input"
+                               lay-verType="tips" lay-verify="required" required value="6.0"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-row">
+            <div class="layui-col-md4">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">排序</label>
+                    <div class="layui-input-block">
+                        <input name="orders" placeholder="排序" type="text" class="layui-input"
+                               lay-verType="tips" lay-verify="required" required value="0"/>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">状态</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="disabled" value="0" title="启用" checked>
+                        <input type="radio" name="disabled" value="1" title="关闭">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <div class="layui-form-item text-right" id="updateDiv">
+            <button class="layui-btn layui-btn-primary" type="button" ew-event="closePageDialog">关闭</button>
+            <button class="layui-btn" lay-filter="modalSubmit" lay-submit>保存</button>
+        </div>
+
+    </form>
+</div>
+
+<div id="tagDiv" type="text/html" style="display: none;">
+    <form id="tagForm" lay-filter="tagForm" class="layui-form model-form" action="javascript:;">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">标签</label>
+            <div class="layui-input-block">
+                <input name="tagStr" id="tagsInput" class="layui-input">
+                英文逗号隔开
+            </div>
+
+        </div>
+
+
+
+        <div class="layui-form-item text-right">
+            <button class="layui-btn layui-btn-primary" type="button" ew-event="closePageDialog">关闭</button>
+            <button class="layui-btn" lay-filter="tagModalSubmit" lay-submit>保存</button>
+        </div>
+    </form>
+</div>
+
+<!-- js部分 -->
+<script type="text/javascript" src="${ctxPath}/assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="${ctxPath}/assets/js/common.js"></script>
+<script type="text/javascript" src="${ctxPath}/assets/libs/wangEditor/wangEditor.js"></script>
+<script>
+    layui.use(['layer', 'form', 'table', 'util', 'admin', 'laydate', 'upload'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+        var table = layui.table;
+        var util = layui.util;
+        var admin = layui.admin;
+        var laydate = layui.laydate;
+        var upload = layui.upload;
+        var EDIT_INSTANCE = undefined;
+        var REQUEST_PATH = "${ctxPath}/core/dict/";
+        var URL_LIST = [];
+
+        var initComponent = function () {
+            laydate.render({
+                elem: '#param_ctime'
+                ,range: true
+                ,type: 'datetime'
+            });
+            $('#param_ctime').width(300);
+            laydate.render({
+                elem: '#param_ctime'
+                ,range: true
+                ,type: 'datetime'
+            });
+            $('#param_ctime').width(300);
+            laydate.render({
+                elem: '#ctime'
+                ,range: true
+                ,type: 'datetime'
+            });
+            laydate.render({
+                elem: '#ctime'
+                ,range: true
+                ,type: 'datetime'
+            });
+
+            upload.render({
+                elem: '#upload-thumb'
+                ,url: '${ctxPath}/system/upload/video/1'
+                ,accept: 'images'
+                ,before: function(obj){
+                    obj.preview(function(index, file, result){
+                        $('#img-thumb').attr('src', result);
+                    });
+                }
+                ,done: function(res){
+                    if(res.code !== 200){
+                        return layer.msg('上传失败');
+                    }
+
+                    // SUCCESS
+                    $('input[name=cover]').val(res.data.records[0].fileName);
+                }
+                ,error: function(){
+                    $('#img-thumb').attr('src', '');
+                    layer.msg('上传失败，请重新上传')
+                }
+            });
+
+
+
+
+        };
+        initComponent();
+
+        // 渲染表格
+        var insTb = table.render({
+            elem: '#table',
+            url: REQUEST_PATH + 'query',
+            page: true,
+            cellMinWidth: 100,
+            limit: 20,
+            limits: [10, 20, 50, 100, 200, 999],
+            cols: [[
+                {type: 'checkbox'},
+                {field: 'orders', align: 'left', title: '排序号', sort: true, edit: true, width: 90},
+                {field: 'id', align: 'left', title: 'ID', sort: true, width: 80},
+                {align: 'center', toolbar: '#tableBar', title: '操作', width: 240}
+            ]],
+            done: function (res, curr, count) {
+                $('.td-img').on('mouseover', function(){
+                    var that = this;
+                    var src = $(that).attr('src');
+                    layer.tips('<img style="max-height: 200px;" src="'+ src +'">', that, {time: -1, tips: 1});
+                }).on('mouseleave', function () {
+                    layer.closeAll('tips')
+                });
+            }
+        });
+
+        form.on('switch(ckStateUser)', function (obj) {
+            var data = {
+                id: obj.elem.value,
+                disabled: obj.elem.checked ? 0 : 1
+            };
+            admin.req(REQUEST_PATH + 'update', data, function (res) {
+                admin.handleMessage(res);
+            }, 'post');
+        });
+
+        // 工具条点击事件
+        table.on('tool(table)', function (obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+            if (layEvent === 'edit') { // 编辑
+                showEditModel(data);
+            } else if (layEvent === 'del') { // 删除
+                doDel(data.id, '');
+            } else if (layEvent === 'reUpload') {  // 重传
+                admin.open({
+                    type: 2,
+                    title: '维护视频链接',
+                    content: '${ctxPath}/system/videoUrl/?videoId=' + data.id,
+                    area: ['94%', '90%'],
+                    success: function (layero, dIndex) {
+
+                    }
+                });
+            } else if (layEvent === 'tag') {
+                var videoId = data.id;
+                var tagListStr = data.tagListStr;
+                console.log(tagListStr)
+
+                admin.open({
+                    type: 1,
+                    title: '标签',
+                    content: $('#tagDiv'),
+                    area: ['700px', '300px'],
+                    success: function (layero, dIndex) {
+
+
+                        $('#tagsInput').val(tagListStr);
+
+                        form.on('submit(tagModalSubmit)', function (data) {
+                            layer.load(2);
+                            var d = data.field;
+                            d.videoId = videoId;
+                            admin.req(REQUEST_PATH + 'tags/update', d, function (res) {
+                                layer.closeAll('loading');
+                                admin.handleMessage(res, function () {
+                                    layer.close(dIndex);
+                                    insTb.reload();
+                                });
+                            });
+                            return false;
+                        });
+
+                    },
+                    cancel: function () {
+                        $('#tagsInput_tagsinput .tag').remove();
+                    }
+                });
+            }
+        });
+
+        // 表格编辑事件
+        table.on('edit(table)', function(obj){
+            var data = {
+                id: obj.data.id
+            };
+            data[obj.field] = obj.value;
+            admin.req(REQUEST_PATH + 'update', data, function (res) {
+                admin.handleMessage(res);
+            }, 'post');
+        });
+
+        // 表格排序事件
+        table.on('sort(table)', function(obj){
+            table.reload('table', {
+                initSort: obj
+                ,where: {
+                    field: obj.field
+                    ,type: obj.type
+                }
+            });
+        });
+
+        // 添加
+        $('#btnAdd').click(function () {
+            showEditModel();
+        });
+
+        // 搜索
+        form.on('submit(toolbarSearch)', function (data) {
+            insTb.reload({
+                where: data.field
+                ,page: {
+                    curr: 1
+                }
+            });
+            return false;
+        });
+
+        // 导出
+        form.on('submit(toolbarExport)', function (data) {
+            top.notice.msg('正在解析数据，请稍候...', {icon: 5, timeout: 1300});
+            var u = REQUEST_PATH + "export/excel?1=1";
+            for(var key in data.field) {
+                u += ('&' + key + '=' + data.field[key])
+            }
+            window.location.href = u;
+            return false;
+        });
+
+        // 多选删除
+        $('#btnDelete').click(function () {
+            doDel();
+        });
+
+        // 显示表单弹窗
+        function showEditModel(mData) {
+            admin.open({
+                type: 1,
+                title: (mData ? '修改' : '添加') + '视频信息',
+                content: $('#modal'),
+                area: ['94%', '600px'],
+                success: function (layero, dIndex) {
+                    $(layero).children('.layui-layer-content').css('overflow-x', 'visible');
+                    var url = mData ? 'update' : 'insert';
+                    // 回显数据
+                    if (mData) {
+                        $('#img-thumb').attr('src', mData.coverFull);
+                        form.val('modalForm', mData);
+                    } else {
+                        $('#img-thumb').attr('src', '');
+                    }
+                    form.render();
+
+                    // 更新/添加
+                    form.on('submit(modalSubmit)', function (data) {
+                        layer.load(2);
+                        var d = data.field;
+                        admin.req(REQUEST_PATH + url, d, function (res) {
+                            layer.closeAll('loading');
+                            admin.handleMessage(res, function () {
+                                layer.close(dIndex);
+                                insTb.reload();
+                            });
+                        });
+                        return false;
+                    });
+                }, 
+                end: function () {
+                    $('#modalForm')[0].reset();
+                    form.render();
+                }
+            });
+        }
+
+        // 删除 (id仅支持单个id，不传则获取选中行id)
+        function doDel(id, title) {
+            var tipTitle = title === undefined ? '确认要删除吗？' : '确定要删除吗？';
+            var ids = [];
+            if (typeof(id) === 'number' || typeof(id) === 'string') {
+                ids.push(id);
+            } else {
+                // 获取选中行
+                var checkRows = table.checkStatus('table');
+                if (checkRows.data.length != 0) {
+                    layui.each(checkRows.data, function (i, item) {
+                        ids.push(item.id);
+                    });
+                } else {
+                    var o = {title: '提示', message: '请勾选要删除的数据', position: 'topRight'};
+                    top.notice.warning(o);
+                }
+            }
+
+            top.layer.confirm(tipTitle, {
+                skin: 'layui-layer-admin'
+            }, function (i) {
+                layer.load(2);
+                admin.req(REQUEST_PATH + 'delete', {
+                    ids: ids.join(',')
+                }, function (res) {
+                    layer.closeAll('loading');
+                    admin.handleMessage(res, function () {
+                        insTb.reload();
+                        top.layer.closeAll();
+                    });
+                });
+            });
+        }
+
+    });
+</script>
+
+</body>
+</html>

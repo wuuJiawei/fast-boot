@@ -1,0 +1,80 @@
+
+<div class="layui-side">
+    <div class="layui-side-scroll">
+        <ul class="layui-nav layui-nav-tree" lay-filter="admin-side-nav" lay-accordion="true" style="margin-top: 15px;">
+            <li class="layui-nav-item">
+                <a><i class="layui-icon layui-icon-home"></i>&emsp;<cite>Dashboard</cite></a>
+                <dl class="layui-nav-child">
+                    <dd><a lay-href="${ctxPath}/console">欢迎页</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item">
+                <a><i class="fa fa-video-camera"></i>&emsp;<cite>视频管理</cite></a>
+                <dl class="layui-nav-child">
+                    <dd><a lay-href="${ctxPath}/system/video/">视频列表</a></dd>
+                    <dd><a lay-href="${ctxPath}/system/videoType/">视频分类</a></dd>
+                    <dd><a lay-href="${ctxPath}/system/column/">专栏管理</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item">
+                <a><i class="fa fa-user-o"></i>&emsp;<cite>用户管理</cite></a>
+                <dl class="layui-nav-child">
+                    <dd><a lay-href="${ctxPath}/system/user/">用户列表</a></dd>
+                    <dd><a lay-href="${ctxPath}/system/playRecord/">播放记录</a></dd>
+                    <dd><a lay-href="${ctxPath}/system/collectRecord/">收藏记录</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item">
+                <a><i class="fa fa-paper-plane-o"></i>&emsp;<cite>推广</cite></a>
+                <dl class="layui-nav-child">
+                    <dd><a lay-href="${ctxPath}/system/shareRecord/">推广记录</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item">
+                <a><i class="fa fa-bullhorn"></i>&emsp;<cite>通知管理</cite></a>
+                <dl class="layui-nav-child">
+                    <dd><a lay-href="${ctxPath}/system/notification/">通知列表</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item">
+                <a><i class="fa fa-envelope-o"></i>&emsp;<cite>意见反馈</cite></a>
+                <dl class="layui-nav-child">
+                    <dd><a lay-href="${ctxPath}/system/feedback/">反馈列表</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item">
+                <a lay-href="${ctxPath}/system/carousel/"><i class="fa fa-file-image-o"></i>&emsp;<cite>轮播图</cite></a>
+            </li>
+            <li class="layui-nav-item">
+                <a lay-href="${ctxPath}/system/tab/"><i class="fa fa-bars"></i>&emsp;<cite>Tab</cite></a>
+            </li>
+            <li class="layui-nav-item">
+                <a><i class="fa fa-link"></i>&emsp;<cite>广告管理</cite></a>
+                <dl class="layui-nav-child">
+                    <dd><a lay-href="${ctxPath}/system/adv/">广告列表</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item">
+                <a><i class="fa fa-thermometer-full"></i>&emsp;<cite>排行管理</cite></a>
+                <dl class="layui-nav-child">
+                    <dd><a lay-href="${ctxPath}/system/rank/">排行种类</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item">
+                <a><i class="fa fa-cogs"></i>&emsp;<cite>系统设置</cite></a>
+                <dl class="layui-nav-child">
+                    <dd><a lay-href="${ctxPath}/system/option/">全局设置</a></dd>
+                    <dd><a lay-href="${ctxPath}/system/systemLog/">操作日志</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item">
+                <a><i class="fa fa-hand-spock-o"></i>&emsp;<cite>工具</cite></a>
+                <dl class="layui-nav-child">
+                    <dd><a lay-href="${ctxPath}/quartzCron">Cron生成</a></dd>
+                    <dd><a href="http://www.fontawesome.com.cn/faicons/" target="_blank">图标库</a></dd>
+                </dl>
+            </li>
+
+        </ul>
+    </div>
+</div>

@@ -1,0 +1,10 @@
+/**
+ * 用于crud模块的样式文件
+*/
+
+.layui-crud .param-date{
+    width: 300px;
+}
+.layui-crud .crud-toolbar{
+
+}
