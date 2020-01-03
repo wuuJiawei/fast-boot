@@ -1,219 +1,98 @@
 
 package com.w.core.util;
 
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.Serializable;
 
-/**
- * Ret 用于返回值封装，也用于服务端与客户端的 json 数据通信
- *
- * <pre>
- * 一、主要应用场景：
- * 1：业务层需要返回多个返回值，例如要返回业务状态以及数据
- * 2：renderJson(ret) 响应 json 数据给客户端
- *
- * 二、实例
- * 1：服务端
- *    Ret ret = service.justDoIt(paras);
- *    renderJson(ret);
- *
- * 2：javascript 客户端 ajax 回调函数通常这么用：
- *    success: function(ret) {
- *       if(ret.state == "ok") {
- *       	...
- *       }
- *
- *       if (ret.state == "fail") {
- *       	...
- *       }
- *    }
- *
- * 3：普通应用程序通常这么用：
- *   String json = HttpKit.readData(getRequest());
- *   Ret ret = FastJson.getJson().parse(json, Ret.class);
- *   if (ret.isOk()) {
- *   	...
- *   }
- *
- *   if (ret.isFail()) {
- *   	...
- *   }
- *
- * </pre>
- */
-@SuppressWarnings({"serial", "rawtypes", "unchecked"})
-public class Ret extends HashMap {
+@NoArgsConstructor
+@Data
+@Accessors(chain = true)
+public class Ret<T> implements Serializable {
 
-    private static final String STATE = "state";
-    private static final String STATE_OK = "ok";
-    private static final String STATE_FAIL = "fail";
+    private Integer code = 200;
 
-    public Ret() {
-    }
+    private String message = "ok";
 
-    public static Ret by(Object key, Object value) {
-        return new Ret().set(key, value);
-    }
+    private T data;
 
-    public static Ret create(Object key, Object value) {
-        return new Ret().set(key, value);
-    }
-
-    public static Ret create() {
-        return new Ret();
-    }
-
-    public static Ret ok() {
-        return new Ret().setOk();
-    }
-
-    public static Ret ok(Object key, Object value) {
-        return ok().set(key, value);
-    }
-
-    public static Ret fail() {
-        return new Ret().setFail();
-    }
-
-    public static Ret fail(Object key, Object value) {
-        return fail().set(key, value);
-    }
-
-    public Ret setOk() {
-        super.put(STATE, STATE_OK);
-        return this;
-    }
-
-    public Ret setFail() {
-        super.put(STATE, STATE_FAIL);
-        return this;
-    }
-
-    public boolean isOk() {
-        Object state = get(STATE);
-        if (STATE_OK.equals(state)) {
-            return true;
-        }
-        if (STATE_FAIL.equals(state)) {
-            return false;
-        }
-
-        throw new IllegalStateException("调用 isOk() 之前，必须先调用 ok()、fail() 或者 setOk()、setFail() 方法");
-    }
-
-    public boolean isFail() {
-        Object state = get(STATE);
-        if (STATE_FAIL.equals(state)) {
-            return true;
-        }
-        if (STATE_OK.equals(state)) {
-            return false;
-        }
-
-        throw new IllegalStateException("调用 isFail() 之前，必须先调用 ok()、fail() 或者 setOk()、setFail() 方法");
-    }
-
-    public Ret set(Object key, Object value) {
-        super.put(key, value);
-        return this;
-    }
-
-    public Ret setIfNotBlank(Object key, String value) {
-        if (StrUtil.isNotBlank(value)) {
-            set(key, value);
-        }
-        return this;
-    }
-
-    public Ret setIfNotNull(Object key, Object value) {
-        if (value != null) {
-            set(key, value);
-        }
-        return this;
-    }
-
-    public Ret set(Map map) {
-        super.putAll(map);
-        return this;
-    }
-
-    public Ret set(Ret ret) {
-        super.putAll(ret);
-        return this;
-    }
-
-    public Ret delete(Object key) {
-        super.remove(key);
-        return this;
-    }
-
-    public <T> T getAs(Object key) {
-        return (T) get(key);
-    }
-
-    public String getStr(Object key) {
-        Object s = get(key);
-        return s != null ? s.toString() : null;
-    }
-
-    public Integer getInt(Object key) {
-        Number n = (Number) get(key);
-        return n != null ? n.intValue() : null;
-    }
-
-    public Long getLong(Object key) {
-        Number n = (Number) get(key);
-        return n != null ? n.longValue() : null;
-    }
-
-    public Number getNumber(Object key) {
-        return (Number) get(key);
-    }
-
-    public Boolean getBoolean(Object key) {
-        return (Boolean) get(key);
+    /**
+     * 成功，支持携带参数
+     *
+     * @param t
+     * @param <T>
+     * @return
+     */
+    public static <T> Ret<T> ok(T t) {
+        Ret<T> ret = new Ret<>();
+        ret.setCode(200)
+                .setMessage("ok")
+                .setData(t);
+        return ret;
     }
 
     /**
-     * key 存在，并且 value 不为 null
+     * 成功
+     *
+     * @param <T>
+     * @return
      */
-    public boolean notNull(Object key) {
-        return get(key) != null;
+    public static <T> Ret<T> ok() {
+        return ok(null);
     }
 
     /**
-     * key 不存在，或者 key 存在但 value 为null
+     * 失败
+     *
+     * @param code
+     * @param message
+     * @param t
+     * @param <T>
+     * @return
      */
-    public boolean isNull(Object key) {
-        return get(key) == null;
+    public static <T> Ret<T> fail(int code, String message, T t) {
+        Ret<T> ret = new Ret<>();
+        ret.setCode(code)
+                .setMessage(message)
+                .setData(t);
+        return ret;
     }
 
     /**
-     * key 存在，并且 value 为 true，则返回 true
+     * 失败
+     *
+     * @param code
+     * @param message
+     * @param <T>
+     * @return
      */
-    public boolean isTrue(Object key) {
-        Object value = get(key);
-        return (value instanceof Boolean && ((Boolean) value == true));
+    public static <T> Ret<T> fail(int code, String message) {
+        return fail(code, message, null);
     }
 
     /**
-     * key 存在，并且 value 为 false，则返回 true
+     * 失败
+     *
+     * @param message
+     * @param <T>
+     * @return
      */
-    public boolean isFalse(Object key) {
-        Object value = get(key);
-        return (value instanceof Boolean && ((Boolean) value == false));
+    public static <T> Ret<T> fail(String message) {
+        return fail(500, message, null);
     }
 
-    public String toJson() {
-        return JSONUtil.toJsonStr(this);
+    /**
+     * 失败
+     *
+     * @param <T>
+     * @return
+     */
+    public static <T> Ret<T> fail() {
+        return fail(500, "网络连接异常");
     }
 
-    public boolean equals(Object ret) {
-        return ret instanceof Ret && super.equals(ret);
-    }
 }
 
 
