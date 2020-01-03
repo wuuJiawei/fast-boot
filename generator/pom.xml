@@ -15,17 +15,12 @@
 
     <dependencies>
 
-        <dependency>
-            <groupId>org.apache.velocity</groupId>
-            <artifactId>velocity</artifactId>
-            <version>1.7</version>
-        </dependency>
-
         <!-- 核心模块 -->
         <dependency>
             <groupId>com.w</groupId>
             <artifactId>core</artifactId>
         </dependency>
+
     </dependencies>
 
 
