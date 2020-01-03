@@ -151,7 +151,7 @@ public class QueryKit<T> {
      */
     public static <T> PageQuery<T> page(Integer page, Integer limit, Query<T> query) {
         page = page == null ? 1 : page;
-        limit = limit == null ? 15 : limit;
+        limit = limit == null ? 20 : limit;
         PageQuery<T> pageQuery = query.pageSimple(page, limit);
         return pageQuery;
     }

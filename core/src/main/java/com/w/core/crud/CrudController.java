@@ -60,7 +60,7 @@ public abstract class CrudController<T, S extends BaseMapper<T>>
      * @return
      */
     @GetMapping({"/", "index"})
-    protected String renderPage() {
+    public String renderPage() {
         renderPageBefore(getParamMap());
         return view();
     }
