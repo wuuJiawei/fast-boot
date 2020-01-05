@@ -1,0 +1,36 @@
+
+<!--#
+/*
+
+文本输入框组件
+属性名             描述              数据类型       必填   默认值
+inline            是否行内标签        Boolean       否     false
+label             字段显示名称        String        是
+class             自定义class         String        否
+id                唯一id              String        是
+name              文本框的name        String        否
+readonly          是否只读            Boolean       否      false
+
+*/
+-->
+
+
+<!--# if(inline!'false' != 'false'){ -->
+<div class="layui-inline">
+<!--# } -->
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">${label!''}</label>
+        <div class="layui-input-block">
+            <input class="layui-input ${class!''}" id="${id!''}"  name="${name!''}"
+                   type="text" placeholder="请输入${label!''}"
+                    <!--# if(readonly!'true' != 'false'){ -->
+                    readonly
+                    <!--# } -->
+            />
+        </div>
+    </div>
+
+<!--# if(inline!'false' != 'false'){ -->
+</div>
+<!--# } -->
