@@ -4,7 +4,6 @@ import java.util.List;
 
 /**
  * 分页结果对象,这里以layui框架的table为标准
- *
  */
 public class PageRet<T> {
 
@@ -30,12 +29,16 @@ public class PageRet<T> {
         this.msg = "";
     }
 
-    public static <T> PageRet  ok(List<T> rows, long total){
-        return new PageRet(rows, total);
+    public static <T> PageRet<T> ok(List<T> rows, long total) {
+        return new PageRet<T>(rows, total);
     }
 
-    public static <T> PageRet  error(String msg){
-        PageRet<T> result = new PageRet();
+    public static <T> PageRet<T> ok(List<T> rows) {
+        return new PageRet<T>(rows);
+    }
+
+    public static <T> PageRet error(String msg) {
+        PageRet<T> result = new PageRet<T>();
         result.setCode(400);
         result.setMsg(msg);
         return result;

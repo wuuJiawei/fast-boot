@@ -1,6 +1,5 @@
 package com.w.generator;
 
-import com.ibeetl.admin.core.util.beetl.VerifyForamtFunction;
 import org.beetl.core.Configuration;
 import org.beetl.core.Context;
 import org.beetl.core.Function;
@@ -29,7 +28,7 @@ public abstract class BaseTarget implements Target {
 
 
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        ClasspathResourceLoader rs = new ClasspathResourceLoader(loader, "codeTemplate");
+        ClasspathResourceLoader rs = new ClasspathResourceLoader(loader, "genTemplate");
         try {
 
             Configuration cfg = Configuration.defaultConfiguration();
@@ -39,7 +38,7 @@ public abstract class BaseTarget implements Target {
             cfg.setHtmlTagSupport(false);
             cfg.build();
             gt = new GroupTemplate(rs, cfg);
-            gt.registerFunction("verifyFormat", new VerifyForamtFunction());
+//            gt.registerFunction("verifyFormat", new VerifyForamtFunction());
             gt.registerFunction("upperFirst", new Function() {
 
                 @Override

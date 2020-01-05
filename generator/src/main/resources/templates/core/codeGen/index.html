@@ -1,0 +1,66 @@
+<link rel="stylesheet" href="${ctxPath}/assets/libs/layui/css/layui.css"/>
+<link rel="stylesheet" href="${ctxPath}/assets/module/admin.css"/>
+<div class="layui-btn-group">
+    <button id="table-button-edit" class="layui-btn layui-btn-primary  ext-toolbar " data-type="edit">编辑</button>
+    <button id="table-button-refresh" class="layui-btn layui-btn-primary  ext-toolbar " data-type="refresh">刷新</button>
+
+</div>
+<table id="codeTable" lay-filter="codeTable"></table>
+
+<script type="text/javascript" src="${ctxPath}/assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="${ctxPath}/assets/js/common.js"></script>
+<script>
+    layui.use(['table'], function () {
+        var $ = layui.jquery;
+        var table = layui.table
+
+        var codeTable = table.render({
+            elem: '#codeTable',
+            method: 'post',
+            url: '${ctxPath}/core/gen/table.json' //数据接口
+            , page: false
+            , limit: 10000,
+            cols: [[
+                {
+                    type: 'checkbox',
+                    fixed: 'left',
+                },
+                {
+                    field: 'tableName',
+                    title: '表名称',
+                    sort: true
+                },
+                {
+                    field: 'name',
+                    title: '类名',
+                    sort: true
+                }
+            ]]
+
+        });
+
+
+        var toolbar = {
+            edit: function () { //获取选中数目
+                var data = common.getOneFromTable(table, "codeTable");
+                if (data == null) {
+                    return;
+                }
+                console.log(data)
+                var url = "${ctxPath}/core/gen/tableDetail?table=" + data.tableName;
+                common.dialog(url, "代码生成>" + data.tableName + ">代码生成");
+
+            },
+            refresh: function () {
+                codeTable.reload();
+            }
+
+
+        };
+        $('.ext-toolbar').on('click', function () {
+            var type = $(this).data('type');
+            toolbar[type] ? toolbar[type].call(this) : '';
+        });
+    });
+
+</script>

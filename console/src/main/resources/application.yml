@@ -7,6 +7,8 @@ spring:
     password: S3mkKthLcDtc6p6B
     driver-class-name: com.mysql.jdbc.Driver
 
+beetl:
+  suffix: html
 
 
 

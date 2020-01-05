@@ -1900,3 +1900,12 @@ body .layui-util-face .layui-layer-content {
 .img-tip{
     height: 30px;
 }
+.layui-form-checkbox span {
+     height: initial;
+}
+.layui-input-readonly{
+    background-color: #f5f7fa;
+    border-color: #e4e7ed;
+    color: #000000;
+    cursor: not-allowed;
+}

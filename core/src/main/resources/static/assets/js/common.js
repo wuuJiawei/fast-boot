@@ -1,8 +1,4 @@
-/** EasyWeb iframe v3.1.4 date:2019-08-05 License By http://easyweb.vip */
-
-
-var layer;
-
+var layer, notice,$;
 
 // 以下代码是配置layui扩展模块的目录，每个页面都需要引入
 layui.config({
@@ -30,10 +26,10 @@ layui.config({
     easemob: 'easemob/easemob',
     jqueryUI: 'jquery-ui/jquery-ui'
 }).use(['admin', 'element', 'notice', 'layer'], function () {
-    var $ = layui.jquery;
+    $ = layui.jquery;
     var admin = layui.admin;
     var element = layui.element;
-    var notice = layui.notice;
+    notice = layui.notice;
     layer = layui.layer;
 
     // 移除loading动画
@@ -44,22 +40,22 @@ layui.config({
     $('.front.banner').children('.title').addClass('active');
 
     //滚动监听
-    $(window).scroll(function() {
-        var scr=$(document).scrollTop();
+    $(window).scroll(function () {
+        var scr = $(document).scrollTop();
         scr > 0 ? $(".nav").addClass('scroll') : $(".nav").removeClass('scroll');
     });
 
     //导航切换
     var btn = $('.nav').find('.nav-list').children('button')
-        ,spa = btn.children('span')
-        ,ul = $('.nav').find('.nav-list').children('.layui-nav');
-    btn.on('click', function(){
-        if(!$(spa[0]).hasClass('spa1')){
+        , spa = btn.children('span')
+        , ul = $('.nav').find('.nav-list').children('.layui-nav');
+    btn.on('click', function () {
+        if (!$(spa[0]).hasClass('spa1')) {
             spa[0].className = 'spa1';
             spa[1].style.display = 'none';
             spa[2].className = 'spa3';
             $('.nav')[0].style.height = 90 + ul[0].offsetHeight + 'px';
-        }else{
+        } else {
             spa[0].className = '';
             spa[1].style.display = 'block';
             spa[2].className = '';
@@ -70,7 +66,7 @@ layui.config({
     // 图片自动解析，转换为img，添加tip
     $('body').on('mouseenter', '.img-tip', function (e) {
         var that = $(this);
-        var html = '<div  style="width: 210px; position: relative;"><img src="'+ that.attr('src') +'" style="width: 100%;"></div>'
+        var html = '<div  style="width: 210px; position: relative;"><img src="' + that.attr('src') + '" style="width: 100%;"></div>'
 
         layer.tips(html, that, {
             time: -1
@@ -83,6 +79,29 @@ layui.config({
     }).on('mouseleave', '.img-tip', function () {
         layer.closeAll('tips');
     });
+
+
+    $.prototype.serializeJson = function() {
+        var serializeObj = {};
+        var array = this.serializeArray();
+        var str = this.serialize();
+        $(array).each(
+            function() {
+                if (serializeObj[this.name]) {
+                    if ($.isArray(serializeObj[this.name])) {
+                        serializeObj[this.name].push(this.value);
+                    } else {
+                        serializeObj[this.name] = [
+                            serializeObj[this.name], this.value ];
+                    }
+                } else {
+                    serializeObj[this.name] = this.value;
+                }
+            });
+        return serializeObj;
+    };
+
+
 
 });
 
@@ -105,6 +124,42 @@ function getProjectUrl() {
 
 var common = {
     /**
+     * 错误通知
+     * @param response
+     */
+    error: function (info) {
+        var o = {title: '错误通知', message: info, position: 'topRight'};
+        notice.error(o);
+    },
+    /**
+     * 消息通知
+     * @param response
+     */
+    success: function (info) {
+        var o = {title: '成功通知', message: info, position: 'topRight'};
+        notice.success(o);
+    },
+    /**
+     * 消息通知
+     * @param response
+     */
+    warning: function (info) {
+        var o = {title: '消息通知', message: info, position: 'topRight'};
+        notice.warning(o);
+    },
+    /**
+     * 文字输入弹窗
+     * @param title
+     * @param defaultValue
+     * @param callback
+     */
+    prompt: function (title, defaultValue, callback) {
+        layer.prompt({title: title, formType: 0, value: defaultValue}, function (value, index, elem) {
+            layer.close(index);
+            callback(value);
+        });
+    },
+    /**
      * 根据返回值进行提示
      * @param response
      */
@@ -114,11 +169,86 @@ var common = {
             if (successFn) {
                 successFn();
             }
-            top.notice.success(o);
+            notice.success(o);
         } else {
-            top.notice.warning(o);
+            notice.warning(o);
         }
-    }
+    },
+
+    /**
+     * 发起post请求
+     * @param url
+     * @param paras
+     * @param next 成功的回调
+     */
+    post: function (url, paras, next) {
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: paras,
+            success: function(rsp){
+                if(rsp.code !== 200){
+                    common.error(rsp.msg);
+                }else{
+                    //成功
+                    if(next!=null){
+                        next(rsp.data);
+                    }else{
+                        common.success('操作成功');
+                    }
+                }
+            },
+            error:function(rsp){
+                common.error(rsp.message);
+            }
+        })
+    },
+    /**
+     * 获取表格的选中行数据
+     * @param layuiTable layui表格对象
+     * @param tableId 表格ID
+     */
+    getOneFromTable: function (layuiTable, tableId) {
+        var checkStatus = layuiTable.checkStatus(tableId)
+            , data = checkStatus.data;
+        if (data.length == 0) {
+            common.warning("请选中一条记录");
+        } else if (data.length > 1) {
+            common.warning("只能选中一条记录")
+        } else {
+            return data[0];
+        }
+    },
+    /**
+     * Dialog信息展示框
+     * @param url
+     * @param title
+     */
+    dialog: function (url, title) {
+        var index = layer.open({
+            type: 2,
+            content: url,
+            title: title,
+            maxmin: false
+        });
+        layer.full(index);
+    },
+    confirm: function (content, callback, callBackNo) {
+        var index = layer.confirm(content, {
+            btn: ['确认', '取消'] //按钮
+        }, function () {
+            if (callback != null) {
+                callback();
+            }
+            layer.close(index);
+        }, function () {
+            if (callBackNo != null) {
+                callBackNo()
+            }
+            layer.close(index);
+        });
+
+    },
 };
 
 // 字符串处理
@@ -139,14 +269,14 @@ var utils = {
     unixTimeToDateString: function (time) {
         console.log(time)
         var unixTimestamp = new Date(time * 1000);
-        return  unixTimestamp.toLocaleString();
+        return unixTimestamp.toLocaleString();
     },
     /**
      * 日期时间格式转十位时间戳
      * @param str 格式要求：2014-04-23 18:55:49
      * @return number: 1398250549
      */
-    dateStringTo10UnixTime: function(str) {
+    dateStringTo10UnixTime: function (str) {
         return Date.parse(str) / 1000;
     },
     /**
@@ -158,20 +288,20 @@ var utils = {
         var second_time = parseFloat(msd) / 1000;
 
         var time = parseInt(second_time) + "秒";
-        if( parseInt(second_time )> 60){
+        if (parseInt(second_time) > 60) {
 
             var second = parseInt(second_time) % 60;
             var min = parseInt(second_time / 60);
             time = min + "分" + second + "秒";
 
-            if( min > 60 ){
+            if (min > 60) {
                 min = parseInt(second_time / 60) % 60;
-                var hour = parseInt( parseInt(second_time / 60) /60 );
+                var hour = parseInt(parseInt(second_time / 60) / 60);
                 time = hour + "小时" + min + "分" + second + "秒";
 
-                if( hour > 24 ){
-                    hour = parseInt( parseInt(second_time / 60) /60 ) % 24;
-                    var day = parseInt( parseInt( parseInt(second_time / 60) /60 ) / 24 );
+                if (hour > 24) {
+                    hour = parseInt(parseInt(second_time / 60) / 60) % 24;
+                    var day = parseInt(parseInt(parseInt(second_time / 60) / 60) / 24);
                     time = day + "天" + hour + "小时" + min + "分" + second + "秒";
                 }
             }
@@ -187,7 +317,7 @@ var utils = {
      * @param days
      * @returns {string}
      */
-    addDate: function(date, days) {
+    addDate: function (date, days) {
         if (days == undefined || days == '') {
             days = 1;
         }
@@ -220,22 +350,6 @@ var utils = {
         layer.msg(text, {icon: 0});
     }
 
-};
-
-
-// 提示
-var tip = {
-    /**
-     * 图片路径转换img，提供tip提示
-     * @param url 图片路径
-     */
-    image: function (url) {
-        var u = url;
-        if (u === '') {
-            return '暂无图片';
-        }
-        return '<img src="'+ u +'" style="height: 30px;" class="img-tip">';
-    }
 };
 
 
