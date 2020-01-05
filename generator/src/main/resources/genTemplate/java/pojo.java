@@ -24,18 +24,16 @@ import org.beetl.sql.core.annotatoin.LogicDelete;
 
 /* 
 * ${comment}
-* gen by Spring Boot2 Admin ${date(),"yyyy-MM-dd"}
+* gen by fast-boot ${date(),"yyyy-MM-dd"}
 */
-public class ${className} extends BaseEntity{
+public class ${className} extends BaseModel{
 
     @for(attr in attrs){
 		@if(!isEmpty(attr.comment)){
     //${attr.comment}
 		@}
 		@if(attr.isId) {
-    \@NotNull(message = "ID不能为空", groups =ValidateConfig.UPDATE.class)
-    \@SeqID(name = ORACLE_CORE_SEQ_NAME)
-    \@AutoID	
+    \@AutoID
 		@}
 		@if(isNotEmpty(attr.dictType)) {
     \@Dict(type="${attr.dictType}")

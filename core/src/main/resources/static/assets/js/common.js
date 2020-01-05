@@ -26,19 +26,37 @@ layui.config({
     timeago: 'timeago',
     easemob: 'easemob/easemob',
     jqueryUI: 'jquery-ui/jquery-ui'
-}).use(['admin', 'element', 'notice', 'layer'], function () {
+}).use(['admin', 'element', 'notice', 'layer', 'laydate'], function () {
     $ = layui.jquery;
     var admin = layui.admin;
     var element = layui.element;
     notice = layui.notice;
     layer = layui.layer;
+    var laydate = layui.laydate;
 
     // 移除loading动画
     setTimeout(function () {
         admin.removeLoading();
-    }, window == top ? 600 : 100);
 
-    $('.front.banner').children('.title').addClass('active');
+        // 图片自动解析，转换为img，添加tip
+        $('body').on('mouseenter', '.img-tip', function (e) {
+            var that = $(this);
+            var html = '<div  style="width: 210px; position: relative;"><img src="' + that.attr('src') + '" style="width: 100%;"></div>'
+
+            layer.tips(html, that, {
+                time: -1
+            });
+
+            $('.layui-layer-tips').width(232);
+
+            e.preventDefault();
+            e.stopPropagation();
+        }).on('mouseleave', '.img-tip', function () {
+            layer.closeAll('tips');
+        });
+
+
+    }, window == top ? 600 : 100);
 
     //滚动监听
     $(window).scroll(function () {
@@ -51,6 +69,7 @@ layui.config({
         , spa = btn.children('span')
         , ul = $('.nav').find('.nav-list').children('.layui-nav');
     btn.on('click', function () {
+        console.log('nav click')
         if (!$(spa[0]).hasClass('spa1')) {
             spa[0].className = 'spa1';
             spa[1].style.display = 'none';
@@ -64,22 +83,6 @@ layui.config({
         }
     });
 
-    // 图片自动解析，转换为img，添加tip
-    $('body').on('mouseenter', '.img-tip', function (e) {
-        var that = $(this);
-        var html = '<div  style="width: 210px; position: relative;"><img src="' + that.attr('src') + '" style="width: 100%;"></div>'
-
-        layer.tips(html, that, {
-            time: -1
-        });
-
-        $('.layui-layer-tips').width(232);
-
-        e.preventDefault();
-        e.stopPropagation();
-    }).on('mouseleave', '.img-tip', function () {
-        layer.closeAll('tips');
-    });
 
 
     $.prototype.serializeJson = function() {
