@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>管理平台</title>
+    <link rel="stylesheet" href="${ctxPath}/assets/libs/layui/css/layui.css"/>
+    <link rel="stylesheet" href="${ctxPath}/assets/css/login.css"/>
+    <script>
+        if (window != top)
+            top.location.replace(location.href);
+    </script>
+</head>
+
+<body>
+<div class="login-wrapper">
+
+    <div class="login-header">
+
+    </div>
+
+    <div class=" login-body">
+        <div class="layui-card">
+            <div class="layui-card-header">
+                <h2>- 登录 -</h2>
+                <p>管理平台</p>
+            </div>
+            <form class="layui-card-body layui-form layui-form-pane" action="javascript:;">
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><i class="layui-icon layui-icon-username"></i></label>
+                    <div class="layui-input-block">
+                        <input name="username" type="text" class="layui-input" placeholder="账号" lay-verType="tips"
+                               lay-verify="required"/>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><i class="layui-icon layui-icon-password"></i></label>
+                    <div class="layui-input-block">
+                        <input name="password" type="password" class="layui-input" placeholder="密码"
+                               lay-verType="tips" lay-verify="required"/>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><i class="layui-icon layui-icon-vercode"></i></label>
+                    <div class="layui-input-block">
+                        <div class="layui-row inline-block">
+                            <div class="layui-col-xs7">
+                                <input name="code" type="text" placeholder="验证码" class="layui-input"
+                                       autocomplete="off" lay-verType="tips" lay-verify="required" required/>
+                            </div>
+                            <div class="layui-col-xs5" style="padding-left: 6px;">
+                                <img class="login-captcha" src="${ctxPath}/captcha">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <button lay-filter="loginSubmit" class="layui-btn layui-btn-fluid submit" lay-submit>登 录</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript" src="${ctxPath}/assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="${ctxPath}/assets/js/common.js"></script>
+<script>
+    layui.use(['layer', 'form', 'admin'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+        var admin = layui.admin;
+
+        $('.login-captcha').click(function () {
+            $(this).attr('src', '${ctxPath}/captcha?t=' + new Date().getTime())
+        });
+
+        form.on('submit(loginSubmit)', function (obj) {
+            admin.btnLoading($('.submit'));
+            $.post('login', obj.field, function (r) {
+                admin.btnLoading($('.submit'), false);
+                if (200 === r.code) {
+                    layer.msg('登录成功', {icon: 1, time: 800}, function () {
+                        location.replace(r.data)
+                    });
+                } else {
+                    layer.msg(r.message);
+                }
+            });
+
+            return false;
+        });
+
+    });
+</script>
+</body>
+</html>

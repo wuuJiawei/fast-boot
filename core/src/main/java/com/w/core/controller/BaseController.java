@@ -6,6 +6,7 @@ import cn.hutool.extra.servlet.ServletUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +19,8 @@ public class BaseController {
 
     @Autowired
     protected HttpServletRequest request;
+    @Autowired
+    protected HttpSession session;
 
     /**
      * 获得所有请求参数

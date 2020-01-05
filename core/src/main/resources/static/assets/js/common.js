@@ -1,4 +1,5 @@
-var layer, notice,$;
+
+let layer, notice, $;
 
 // 以下代码是配置layui扩展模块的目录，每个页面都需要引入
 layui.config({
@@ -174,7 +175,6 @@ var common = {
             notice.warning(o);
         }
     },
-
     /**
      * 发起post请求
      * @param url
