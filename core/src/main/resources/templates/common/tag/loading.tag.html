@@ -2,3 +2,8 @@
 <div class="page-loading">
     <div class="rubik-loader"></div>
 </div>
+<script>
+    setTimeout(function () {
+        document.querySelector('.page-loading').style.display = 'none';
+    }, window === top ? 600 : 100);
+</script>

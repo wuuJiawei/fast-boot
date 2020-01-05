@@ -35,28 +35,9 @@ layui.config({
     var laydate = layui.laydate;
 
     // 移除loading动画
-    setTimeout(function () {
-        admin.removeLoading();
-
-        // 图片自动解析，转换为img，添加tip
-        $('body').on('mouseenter', '.img-tip', function (e) {
-            var that = $(this);
-            var html = '<div  style="width: 210px; position: relative;"><img src="' + that.attr('src') + '" style="width: 100%;"></div>'
-
-            layer.tips(html, that, {
-                time: -1
-            });
-
-            $('.layui-layer-tips').width(232);
-
-            e.preventDefault();
-            e.stopPropagation();
-        }).on('mouseleave', '.img-tip', function () {
-            layer.closeAll('tips');
-        });
-
-
-    }, window == top ? 600 : 100);
+    // setTimeout(function () {
+    //     admin.removeLoading();
+    // }, window == top ? 600 : 100);
 
     //滚动监听
     $(window).scroll(function () {
@@ -83,7 +64,22 @@ layui.config({
         }
     });
 
+    // 图片自动解析，转换为img，添加tip
+    $('body').on('mouseenter', '.img-tip', function (e) {
+        var that = $(this);
+        var html = '<div  style="width: 210px; position: relative;"><img src="' + that.attr('src') + '" style="width: 100%;"></div>'
 
+        layer.tips(html, that, {
+            time: -1
+        });
+
+        $('.layui-layer-tips').width(232);
+
+        e.preventDefault();
+        e.stopPropagation();
+    }).on('mouseleave', '.img-tip', function () {
+        layer.closeAll('tips');
+    });
 
     $.prototype.serializeJson = function() {
         var serializeObj = {};
