@@ -151,6 +151,11 @@
             return false;
         });
 
+        // 注册表格重载函数到window
+        window.tableReload = function() {
+            insTb.reload();
+        };
+
         // 导出
         form.on('submit(toolbarExport)', function (data) {
             top.notice.msg('正在解析数据，请稍候...', {icon: 5, timeout: 1300});
@@ -167,45 +172,6 @@
             doDel();
         });
 
-        // 显示表单弹窗
-        function showEditModel(mData) {
-            admin.open({
-                type: 1,
-                title: (mData ? '修改' : '添加') + '视频信息',
-                content: $('#modal'),
-                area: ['94%', '600px'],
-                success: function (layero, dIndex) {
-                    $(layero).children('.layui-layer-content').css('overflow-x', 'visible');
-                    var url = mData ? 'update' : 'insert';
-                    // 回显数据
-                    if (mData) {
-                        $('#img-thumb').attr('src', mData.coverFull);
-                        form.val('modalForm', mData);
-                    } else {
-                        $('#img-thumb').attr('src', '');
-                    }
-                    form.render();
-
-                    // 更新/添加
-                    form.on('submit(modalSubmit)', function (data) {
-                        layer.load(2);
-                        var d = data.field;
-                        admin.req(REQUEST_PATH + url, d, function (res) {
-                            layer.closeAll('loading');
-                            admin.handleMessage(res, function () {
-                                layer.close(dIndex);
-                                insTb.reload();
-                            });
-                        });
-                        return false;
-                    });
-                },
-                end: function () {
-                    $('#modalForm')[0].reset();
-                    form.render();
-                }
-            });
-        }
 
         // 删除 (id仅支持单个id，不传则获取选中行id)
         function doDel(id, title) {

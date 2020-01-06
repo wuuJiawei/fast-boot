@@ -3,202 +3,67 @@
 <form class="layui-form" id="updateForm">
     <div class="layui-row">
         <div class="layui-col-md6">
-            <w:inputText label="字典值" name="value" value="${model.value}"/>
+            <w:inputText label="字典值" name="value" value="${model.value! }"/>
         </div>
         <div class="layui-col-md6">
-            <w:inputText label="字典名称" name="name" value="${model.name}"/>
+            <w:inputText label="字典名称" name="name" value="${model.name! }"/>
         </div>
     </div>
     <div class="layui-row">
         <div class="layui-col-md4">
-            <w:inputText label="类型" name="type" value="${model.type}"/>
+            <w:inputText label="类型" name="type" value="${model.type! }"/>
         </div>
         <div class="layui-col-md4">
-            <w:inputText label="类型描述" name="typeName" value="${model.typeName}"/>
+            <w:inputText label="类型描述" name="typeName" value="${model.typeName! }"/>
         </div>
         <div class="layui-col-md4">
-            <w:inputText label="显示顺序" name="orders" value="${model.orders}"/>
+            <w:inputText label="显示顺序" name="orders" value="${model.orders! }"/>
         </div>
     </div>
     <div class="layui-row">
         <div class="layui-col-md4">
-            <w:inputText label="父字典值" name="parent" value="${model.parent}"/>
+            <w:inputText label="父字典值" name="parent" value="${model.parent! }"/>
         </div>
         <div class="layui-col-md8">
-            <w:inputText label="备注" name="remark" value="${model.remark}"/>
+            <w:inputText label="备注" name="remark" value="${model.remark! }"/>
         </div>
     </div>
 
-    <input type="hidden" name="id" value=${model.id} />
+    <input type="hidden" name="id" value="${model.id! }" />
 
     <w:submitButtons id="updateButton" />
 </form>
 
 
 <script>
-    layui.use(['layer', 'form', 'table', 'util', 'admin', 'laydate', 'upload'], function () {
+    layui.use(['layer', 'form', 'table', 'util', 'admin'], function () {
         var $ = layui.jquery;
         var layer = layui.layer;
         var form = layui.form;
         var table = layui.table;
         var util = layui.util;
         var admin = layui.admin;
-        var laydate = layui.laydate;
-        var upload = layui.upload;
         var REQUEST_PATH = "${ctxPath}/core/dict/";
+        <!--#if(has(model) && model.id != null){-->
+        REQUEST_PATH += "update";
+        <!--#}else{-->
+        REQUEST_PATH += "insert";
+        <!--#}-->
 
-        var initComponent = function () {
-
-
-            upload.render({
-                elem: '#upload-thumb'
-                ,url: '${ctxPath}/system/upload/video/1'
-                ,accept: 'images'
-                ,before: function(obj){
-                    obj.preview(function(index, file, result){
-                        $('#img-thumb').attr('src', result);
-                    });
-                }
-                ,done: function(res){
-                    if(res.code !== 200){
-                        return layer.msg('上传失败');
-                    }
-
-                    // SUCCESS
-                    $('input[name=cover]').val(res.data.records[0].fileName);
-                }
-                ,error: function(){
-                    $('#img-thumb').attr('src', '');
-                    layer.msg('上传失败，请重新上传')
-                }
-            });
-
-
-
-
-        };
-        initComponent();
-
-
-        var toolbar = {
-            insert: function () {
-
-            },
-            delete: function () {
-
-            },
-            export: function () {
-
-            }
-        };
-
-        $('.ext-toolbar').on('click', function() {
-            var type = $(this).data('type');
-            toolbar[type] ? toolbar[type].call(this) : '';
-        });
-
-
-        // 搜索
-        form.on('submit(toolbarSearch)', function (data) {
-            insTb.reload({
-                where: data.field
-                ,page: {
-                    curr: 1
-                }
+        form.on('submit(form)', function (data) {
+            layer.load(2);
+            var d = data.field;
+            common.post(REQUEST_PATH, d, function (res) {
+                layer.closeAll('loading');
+                parent.window.tableReload();
+                common.closeThisChildLayer();
             });
             return false;
         });
 
-        // 导出
-        form.on('submit(toolbarExport)', function (data) {
-            top.notice.msg('正在解析数据，请稍候...', {icon: 5, timeout: 1300});
-            var u = REQUEST_PATH + "export/excel?1=1";
-            for(var key in data.field) {
-                u += ('&' + key + '=' + data.field[key])
-            }
-            window.location.href = u;
-            return false;
+        $("#updateButton-cancel").click(function () {
+            common.closeThisChildLayer();
         });
-
-        // 多选删除
-        $('#btnDelete').click(function () {
-            doDel();
-        });
-
-        // 显示表单弹窗
-        function showEditModel(mData) {
-            admin.open({
-                type: 1,
-                title: (mData ? '修改' : '添加') + '视频信息',
-                content: $('#modal'),
-                area: ['94%', '600px'],
-                success: function (layero, dIndex) {
-                    $(layero).children('.layui-layer-content').css('overflow-x', 'visible');
-                    var url = mData ? 'update' : 'insert';
-                    // 回显数据
-                    if (mData) {
-                        $('#img-thumb').attr('src', mData.coverFull);
-                        form.val('modalForm', mData);
-                    } else {
-                        $('#img-thumb').attr('src', '');
-                    }
-                    form.render();
-
-                    // 更新/添加
-                    form.on('submit(modalSubmit)', function (data) {
-                        layer.load(2);
-                        var d = data.field;
-                        admin.req(REQUEST_PATH + url, d, function (res) {
-                            layer.closeAll('loading');
-                            admin.handleMessage(res, function () {
-                                layer.close(dIndex);
-                                insTb.reload();
-                            });
-                        });
-                        return false;
-                    });
-                },
-                end: function () {
-                    $('#modalForm')[0].reset();
-                    form.render();
-                }
-            });
-        }
-
-        // 删除 (id仅支持单个id，不传则获取选中行id)
-        function doDel(id, title) {
-            var tipTitle = title === undefined ? '确认要删除吗？' : '确定要删除吗？';
-            var ids = [];
-            if (typeof(id) === 'number' || typeof(id) === 'string') {
-                ids.push(id);
-            } else {
-                // 获取选中行
-                var checkRows = table.checkStatus('table');
-                if (checkRows.data.length != 0) {
-                    layui.each(checkRows.data, function (i, item) {
-                        ids.push(item.id);
-                    });
-                } else {
-                    var o = {title: '提示', message: '请勾选要删除的数据', position: 'topRight'};
-                    top.notice.warning(o);
-                }
-            }
-
-            top.layer.confirm(tipTitle, {
-                skin: 'layui-layer-admin'
-            }, function (i) {
-                layer.load(2);
-                admin.req(REQUEST_PATH + 'delete', {
-                    ids: ids.join(',')
-                }, function (res) {
-                    layer.closeAll('loading');
-                    admin.handleMessage(res, function () {
-                        insTb.reload();
-                        top.layer.closeAll();
-                    });
-                });
-            });
-        }
 
     });
 </script>

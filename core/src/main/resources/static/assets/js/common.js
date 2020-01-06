@@ -163,9 +163,9 @@ var common = {
      * 根据返回值进行提示
      * @param response
      */
-    message: function (response, successFn) {
-        var o = {title: '消息通知', message: response.msg, position: 'topRight'};
-        if (response.code == 200) {
+    handleResp: function (response, successFn) {
+        var o = {title: '消息通知', message: response.message, position: 'topRight'};
+        if (response.code === 200) {
             if (successFn) {
                 successFn();
             }
@@ -190,10 +190,9 @@ var common = {
                     common.error(rsp.msg);
                 }else{
                     //成功
+                    common.success('操作成功');
                     if(next!=null){
                         next(rsp.data);
-                    }else{
-                        common.success('操作成功');
                     }
                 }
             },
@@ -219,6 +218,13 @@ var common = {
         }
     },
     /**
+     * 关闭当前子对话框
+     */
+    closeThisChildLayer: function (){
+        var index = parent.layer.getFrameIndex(window.name); // 先得到当前iframe层的索引
+        parent.layer.close(index); // 再执行关闭
+    },
+    /**
      * Dialog信息展示框
      * @param url
      * @param title
@@ -232,6 +238,12 @@ var common = {
         });
         layer.full(index);
     },
+    /**
+     * 消息提示对话框
+     * @param content
+     * @param callback
+     * @param callBackNo
+     */
     confirm: function (content, callback, callBackNo) {
         var index = layer.confirm(content, {
             btn: ['确认', '取消'] //按钮

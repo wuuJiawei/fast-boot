@@ -1,7 +1,10 @@
 package com.w.core.controller;
 
+import cn.hutool.core.date.DateUtil;
 import com.w.core.crud.CrudController;
+import com.w.core.crud.EditResult;
 import com.w.core.dao.CoreDictDao;
+import com.w.core.enums.DelFlagEnum;
 import com.w.core.model.CoreDict;
 import com.w.core.util.Ret;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +26,7 @@ public class CoreDictController extends CrudController<CoreDict, CoreDictDao> {
 
     @Override
     protected String orderField() {
-        return "id";
+        return "orders";
     }
 
     @Override
@@ -32,13 +35,16 @@ public class CoreDictController extends CrudController<CoreDict, CoreDictDao> {
     }
 
     /**
-     * 数据插入完成后，支持做各种骚操作
+     * 数据插入前，支持做各种操作
      *
      * @param m
      * @return
      */
     @Override
-    public Ret<CoreDict> insertAfter(CoreDict m) {
-        return super.insertAfter(m);
+    public EditResult<CoreDict> insertBefore(CoreDict m) {
+        m.setCreateTime(DateUtil.date());
+        m.setDelFlag(DelFlagEnum.NORMAL.getValue());
+        m.setParent(0L);
+        return EditResult.next(m);
     }
 }

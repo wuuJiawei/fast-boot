@@ -32,6 +32,16 @@ public class EditResult<T> {
      * 继续执行CRUD的操作
      *
      * @param m
+     * @return
+     */
+    public static <T> EditResult<T> next(T m) {
+        return next(m, Ret.ok());
+    }
+
+    /**
+     * 继续执行CRUD的操作
+     *
+     * @param m
      * @param ret
      * @return
      */
@@ -41,6 +51,16 @@ public class EditResult<T> {
                 .setNext(true)
                 .setResult(ret);
         return result;
+    }
+
+    /**
+     * 直接渲染，不再执行CRUD的操作
+     *
+     * @param ret
+     * @return
+     */
+    public static <T> EditResult<T> stop(Ret<T> ret) {
+        return stop(null, ret);
     }
 
     /**
