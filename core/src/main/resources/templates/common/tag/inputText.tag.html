@@ -10,6 +10,7 @@ class             自定义class         String        否
 id                唯一id              String        是
 name              文本框的name        String        否
 readonly          是否只读            Boolean       否      false
+value             值                 String        否
 
 */
 -->
@@ -24,7 +25,8 @@ readonly          是否只读            Boolean       否      false
         <div class="layui-input-block">
             <input class="layui-input ${class!''}" id="${id!''}"  name="${name!''}"
                    type="text" placeholder="请输入${label!''}"
-                    <!--# if(readonly!'true' != 'false'){ -->
+                   value="${value!''}"
+                    <!--# if(readonly!'false' != 'false'){ -->
                     readonly
                     <!--# } -->
             />
