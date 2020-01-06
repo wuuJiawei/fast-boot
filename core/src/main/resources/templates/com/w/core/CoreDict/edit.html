@@ -1,132 +1,94 @@
 <!--#layout("/common/layout.html",{"title":"数据字典"}){ -->
 
-
-<form class="layui-form toolbar" id="tableToolBar" action="javascript:;">
-    <div class="layui-form-item">
-        <w:inputText label="字典编码" name="param@like@type" inline="true"></w:inputText>
-        <w:inputText label="编码描述" name="param@like@type_name" inline="true"></w:inputText>
-        <w:inputText label="名称" name="param@like@name" inline="true"></w:inputText>
-        <w:inputText label="值" name="param@like@value" inline="true"></w:inputText>
-        <w:inputDate label="创建时间" name="param@between@ctime" id="param_ctime" range="true" inline="true"></w:inputDate>
-        <div class="layui-inline">
-            <w:accessButton label="搜索" icon="layui-icon layui-icon-search" action="search"></w:accessButton>
-            <w:accessButton label="添加" icon="layui-icon layui-icon-add-circle" action="insert"></w:accessButton>
-            <w:accessButton label="删除" icon="layui-icon layui-icon-delete" action="delete"></w:accessButton>
+<form class="layui-form" id="updateForm">
+    <div class="layui-row">
+        <div class="layui-col-md6">
+            <w:inputText label="字典值" name="value" value="${model.value}"/>
+        </div>
+        <div class="layui-col-md6">
+            <w:inputText label="字典名称" name="name" value="${model.name}"/>
         </div>
     </div>
+    <div class="layui-row">
+        <div class="layui-col-md4">
+            <w:inputText label="类型" name="type" value="${model.type}"/>
+        </div>
+        <div class="layui-col-md4">
+            <w:inputText label="类型描述" name="typeName" value="${model.typeName}"/>
+        </div>
+        <div class="layui-col-md4">
+            <w:inputText label="显示顺序" name="orders" value="${model.orders}"/>
+        </div>
+    </div>
+    <div class="layui-row">
+        <div class="layui-col-md4">
+            <w:inputText label="父字典值" name="parent" value="${model.parent}"/>
+        </div>
+        <div class="layui-col-md8">
+            <w:inputText label="备注" name="remark" value="${model.remark}"/>
+        </div>
+    </div>
+
+    <input type="hidden" name="id" value=${model.id} />
+
+    <w:submitButtons id="updateButton" />
 </form>
-
-<table class="layui-table" id="table" lay-filter="table"></table>
-
-<!-- 表格操作列 -->
-<script type="text/html" id="tableBar">
-    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
-    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
-</script>
 
 
 <script>
-    layui.use(['layer', 'form', 'table', 'util', 'admin'], function () {
+    layui.use(['layer', 'form', 'table', 'util', 'admin', 'laydate', 'upload'], function () {
         var $ = layui.jquery;
         var layer = layui.layer;
         var form = layui.form;
         var table = layui.table;
         var util = layui.util;
         var admin = layui.admin;
+        var laydate = layui.laydate;
+        var upload = layui.upload;
         var REQUEST_PATH = "${ctxPath}/core/dict/";
 
-        // 渲染表格
-        var insTb = table.render({
-            elem: '#table',
-            url: REQUEST_PATH + 'query',
-            page: true,
-            cellMinWidth: 100,
-            limit: 20,
-            limits: [10, 20, 50, 100, 200, 999],
-            cols: [[
-                {type: 'checkbox'},
-                {field: 'orders', align: 'left', title: '排序', sort: true, edit: true, width: 90},
-                {field: 'type', align: 'left', title: '字典编码', sort: true, edit: true},
-                {field: 'typeName', align: 'left', title: '编码描述', sort: true, edit: true},
-                {field: 'name', align: 'left', title: '名称', sort: true, edit: true},
-                {field: 'value', align: 'left', title: '值', sort: true, edit: true},
-                {align: 'center', toolbar: '#tableBar', title: '操作', width: 240}
-            ]],
-            done: function (res, curr, count) {
-                $('.td-img').on('mouseover', function(){
-                    var that = this;
-                    var src = $(that).attr('src');
-                    layer.tips('<img style="max-height: 200px;" src="'+ src +'">', that, {time: -1, tips: 1});
-                }).on('mouseleave', function () {
-                    layer.closeAll('tips')
-                });
-            }
-        });
+        var initComponent = function () {
 
-        // 工具条点击事件
-        table.on('tool(table)', function (obj) {
-            var data = obj.data;
-            var layEvent = obj.event;
-            if (layEvent === 'edit') { // 编辑
-                admin.open({
-                    type: 2,
-                    title: '数据字典-编辑',
-                    content: REQUEST_PATH + 'edit?id=' + data.id,
-                    area: ['94%', '600px'],
-                    success: function (layero, dIndex) {
 
-                    },
-                    end: function () {
-
+            upload.render({
+                elem: '#upload-thumb'
+                ,url: '${ctxPath}/system/upload/video/1'
+                ,accept: 'images'
+                ,before: function(obj){
+                    obj.preview(function(index, file, result){
+                        $('#img-thumb').attr('src', result);
+                    });
+                }
+                ,done: function(res){
+                    if(res.code !== 200){
+                        return layer.msg('上传失败');
                     }
-                });
-            } else if (layEvent === 'del') { // 删除
-                doDel(data.id, '');
-            }
-        });
 
-        // 表格编辑事件
-        table.on('edit(table)', function(obj){
-            var data = {
-                id: obj.data.id
-            };
-            data[obj.field] = obj.value;
-            admin.req(REQUEST_PATH + 'update', data, function (res) {
-                admin.handleMessage(res);
-            }, 'post');
-        });
-
-        // 表格排序事件
-        table.on('sort(table)', function(obj){
-            table.reload('table', {
-                initSort: obj
-                ,where: {
-                    field: obj.field
-                    ,type: obj.type
+                    // SUCCESS
+                    $('input[name=cover]').val(res.data.records[0].fileName);
+                }
+                ,error: function(){
+                    $('#img-thumb').attr('src', '');
+                    layer.msg('上传失败，请重新上传')
                 }
             });
-        });
+
+
+
+
+        };
+        initComponent();
+
 
         var toolbar = {
             insert: function () {
-                admin.open({
-                    type: 2,
-                    title: '数据字典-新增',
-                    content: REQUEST_PATH + 'edit',
-                    area: ['94%', '600px'],
-                    success: function (layero, dIndex) {
 
-                    },
-                    end: function () {
-
-                    }
-                });
             },
             delete: function () {
-                common.warning('尚未开放')
+
             },
             export: function () {
-                common.warning('尚未开放')
+
             }
         };
 
@@ -135,10 +97,6 @@
             toolbar[type] ? toolbar[type].call(this) : '';
         });
 
-        // 添加
-        $('#btnAdd').click(function () {
-            showEditModel();
-        });
 
         // 搜索
         form.on('submit(toolbarSearch)', function (data) {

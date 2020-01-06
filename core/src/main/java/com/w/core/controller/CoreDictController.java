@@ -28,12 +28,7 @@ public class CoreDictController extends CrudController<CoreDict, CoreDictDao> {
 
     @Override
     protected String view() {
-        return "com/w/core/CoreDict/index.html";
-    }
-
-    @GetMapping("demo")
-    public String demo(){
-        return "/demo.html";
+        return "com/w/core/CoreDict";
     }
 
     /**
@@ -44,15 +39,6 @@ public class CoreDictController extends CrudController<CoreDict, CoreDictDao> {
      */
     @Override
     public Ret<CoreDict> insertAfter(CoreDict m) {
-
-        // 再插一条，这条报错
-        m.setName("freemarker");
-        m.setValue("福锐马克");
-//        m.setType(null);
-//        m.setTypeName(null);
-
-        dictDao.createQuery().insertSelective(m);
-
         return super.insertAfter(m);
     }
 }

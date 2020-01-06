@@ -43,7 +43,7 @@ public abstract class CrudController<T, S extends BaseMapper<T>>
 
     /**
      * 设置视图页面路径
-     *
+     * 如：com/w，不需要文件名称，CRUD会自动解析到index.html和edit.html
      * @return
      */
     protected abstract String view();
@@ -60,9 +60,30 @@ public abstract class CrudController<T, S extends BaseMapper<T>>
      * @return
      */
     @GetMapping({"/", "index"})
-    public String renderPage() {
+    public String renderIndexPage() {
         renderPageBefore(getParamMap());
-        return view();
+        return view().concat("/index.html");
+    }
+
+    /**
+     * 打开编辑页面前执行的操作
+     */
+    protected void renderEditPageBefore(String id) {
+    }
+
+    /**
+     * 打开编辑页面
+     * insert和update共用此页面
+     * @param id
+     * @return
+     */
+    @GetMapping("edit")
+    public String renderEditPage(String id){
+        renderEditPageBefore(id);
+        if (id != null) {
+            request.setAttribute("model", dao.single(id));
+        }
+        return view().concat("/edit.html");
     }
 
     /**
