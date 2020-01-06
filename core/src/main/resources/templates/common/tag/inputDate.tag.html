@@ -12,6 +12,7 @@ name              文本框的name        String        否
 readonly          是否只读            Boolean       否      true
 range             是否范围选择        Boolean       否      false
 type              日期类型            String        否      date
+value             值                 String        否
 
 */
 -->
@@ -26,6 +27,7 @@ type              日期类型            String        否      date
             <input class="layui-input date-icon ${class!''}" id="${id!''}"  name="${name!''}"
                    autocomplete="false"
                    type="text" placeholder="请选择${label!''}" style="width: 300px;"
+                   value="${value!''}"
                     <!--# if(readonly!'true' != 'false'){ -->
                     readonly
                     <!--# } -->

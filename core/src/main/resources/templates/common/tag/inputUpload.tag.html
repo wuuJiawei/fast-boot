@@ -1,0 +1,72 @@
+
+<!--#
+/*
+
+文件上传组件
+属性名             描述              数据类型       必填   默认值
+label             字段显示名称        String        是
+class             自定义class         String        否
+id                唯一id              String        是
+name              文本框的name        String        否
+accept            上传文件类型        String        否      images（同layui）
+dir               上传到哪个目录      String        否
+value             值                 String        否
+
+*/
+-->
+
+
+<div class="layui-row">
+    <div class="layui-col-md12">
+        <div class="layui-form-item">
+            <label class="layui-form-label">${label!''}</label>
+            <div class="layui-input-block">
+                <input name="${name!''}" placeholder="请输入${label!''}地址" type="text"
+                       class="layui-input ${class!''}" value="${value!''}"
+                />
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label"></label>
+            <div class="layui-input-block">
+                <!--# if(accept!'images' == 'images'){ -->
+                <img class="layui-upload-img" id="thumb-${id!''}" src="" style="max-width:100px;max-height:100px;">
+                <!--#}-->
+                <button type="button" class="layui-btn" id="upload-${id!''}">点击上传${label!''}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    layui.use(['upload', 'jquery'], function () {
+        let jq = layui.jquery;
+        let upload = layui.upload;
+
+        upload.render({
+            elem: "#upload-${id!''}"
+            ,url: "${ctxPath}/system/upload/${dir!''}"
+            ,accept: "${accept!'images'}"
+            ,before: function(obj){
+                <!--# if(accept!'images' == 'images'){ -->
+                obj.preview(function(index, file, result){
+                    $("#thumb-${id!''}").attr('src', result);
+                });
+                <!--#}-->
+            }
+            ,done: function(res){
+                if(res.code !== 200){
+                    return common.error('上传失败');
+                }
+                // SUCCESS
+                $("input[name=${name!''}]").val(res.data.records[0].fileName);
+            }
+            ,error: function(){
+                $("#thumb-${id!''}").attr('src', '');
+                common.error('上传失败，请重新上传')
+            }
+        });
+
+    })
+</script>
