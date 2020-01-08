@@ -154,7 +154,7 @@ var common = {
      * @param callback
      */
     prompt: function (title, defaultValue, callback) {
-        layer.prompt({title: title, formType: 0, value: defaultValue}, function (value, index, elem) {
+        layer.prompt({title: title, formType: 2, value: defaultValue}, function (value, index, elem) {
             layer.close(index);
             callback(value);
         });
