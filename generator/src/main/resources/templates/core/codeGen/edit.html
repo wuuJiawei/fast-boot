@@ -1,17 +1,15 @@
-<link rel="stylesheet" href="${ctxPath}/assets/libs/layui/css/layui.css"/>
-<link rel="stylesheet" href="${ctxPath}/assets/module/admin.css"/>
-<script type="text/javascript" src="${ctxPath}/assets/libs/layui/layui.js"></script>
-<script type="text/javascript" src="${ctxPath}/assets/js/common.js"></script>
+<!--#layout("/common/layout.html",{"title":"代码生成器"}){ -->
 
 <div class="layui-btn-group">
-    <button class="layui-btn ext-toolbar" data-type="js">预览JS</button>
-    <button class="layui-btn ext-toolbar" data-type="java">预览Java</button>
-    <button class="layui-btn ext-toolbar" data-type="sql">预览SQL</button>
-    <button class="layui-btn ext-toolbar" data-type="html">预览HTML</button>
-    <button class="layui-btn ext-toolbar" data-type="gen">立即生成</button>
-    <button class="layui-btn ext-toolbar" data-type="cancel">取消</button>
+    <w:accessButton label="预览JS" action="js"></w:accessButton>
+    <w:accessButton label="预览Java" action="java"></w:accessButton>
+    <w:accessButton label="预览SQL" action="sql"></w:accessButton>
+    <w:accessButton label="预览HTML" action="html"></w:accessButton>
+    <w:accessButton label="立即生成" action="gen"></w:accessButton>
+    <w:accessButton label="取消" action="cancel"></w:accessButton>
 </div>
-<form class="layui-form layui-form-pane" id="updateForm">
+
+<form class="layui-form" id="updateForm">
 
     <fieldset class="layui-elem-field layui-field-title"
               style="margin-top: 30px;">
@@ -51,69 +49,32 @@
         <legend>配置基本信息</legend>
     </fieldset>
     <div class="layui-row">
-        <div class="layui-form-item">
-            <div class="layui-inline">
-                <label class="layui-form-label">表名</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="entity.tableName" readonly
-                           value="${entity.tableName}" class="layui-input layui-input-readonly">
-                </div>
-            </div>
 
-
-            <div class="layui-inline">
-                <label class="layui-form-label">类名</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="entity.name" value="${entity.name}"
-                           class="layui-input">
-                </div>
-            </div>
-            <div class="layui-inline">
-                <label class="layui-form-label">系统包名</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="basePackage"
-                           value="com.ibeetl.cms" class="layui-input">
-                </div>
-            </div>
+        <div class="layui-col-md4">
+            <w:inputText label="表名" name="entity.tableName" value="${entity.tableName}" readonly="true" class="layui-input-readonly"/>
+        </div>
+        <div class="layui-col-md4">
+            <w:inputText label="类名" name="entity.name" value="${entity.name}"/>
+        </div>
+        <div class="layui-col-md4">
+            <w:inputText label="系统包名" name="basePackage" value="com.w.demo"/>
         </div>
 
     </div>
 
-    <div class="layui-form-item">
-        <div class="layui-inline">
-            <label class="layui-form-label">业务名称</label>
-            <div class="layui-input-inline">
-                <input type="text" name="entity.displayName" value="${entity.name}"
-                       class="layui-input">
-            </div>
-        </div>
-
-        <div class="layui-inline">
-            <label class="layui-form-label">变量名</label>
-            <div class="layui-input-inline">
-                <input type="text" name="entity.code" value="${entity.code}"
-                       class="layui-input">
-            </div>
-        </div>
-
-    </div>
     <div class="layui-row">
-        <div class="layui-form-item">
-            <div class="layui-inline">
-                <label class="layui-form-label">urlBase</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="urlBase" value="cms" class="layui-input">
-                </div>
-            </div>
 
-            <div class="layui-inline">
-                <label class="layui-form-label">system</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="entity.system" value="cms"
-                           class="layui-input">
-                </div>
-            </div>
-
+        <div class="layui-col-md3">
+            <w:inputText label="业务名称" name="entity.displayName" value="${entity.displayName}"/>
+        </div>
+        <div class="layui-col-md3">
+            <w:inputText label="变量名" name="entity.code" value="${entity.code}"/>
+        </div>
+        <div class="layui-col-md3">
+            <w:inputText label="urlBase" name="urlBase" value="demo"/>
+        </div>
+        <div class="layui-col-md3">
+            <w:inputText label="system" name="entity.system" value="cms"/>
         </div>
 
     </div>
@@ -165,20 +126,17 @@
     </fieldset>
 
     <table class="layui-table">
-        <colgroup>
-            <col width="200">
-            <col width="250">
-            <col width="250">
-            <col>
-        </colgroup>
         <thead>
-        <tr>
-            <th>名称</th>
-            <th>显示名</th>
-            <th>查询</th>
-            <th>字典类型(可选)</th>
-            <th>字段校验(可选)</th>
-        </tr>
+            <tr>
+                <th>变量名</th>
+                <th>表单名</th>
+                <th>表单显示</th>
+                <th>列表显示</th>
+                <th>是否查询</th>
+                <th>表单控件</th>
+                <th>字典类型(可选)</th>
+                <th>字段校验(可选)</th>
+            </tr>
         </thead>
         <tbody>
         <!--#
@@ -186,17 +144,49 @@
         for(attr in attrs){
          -->
         <tr>
-            <td><input type="text"
+            <td>
+                <input type="text"
                        name="entity.list[${attrLP.index-1}].name" readonly
-                       value="${attr.name}" class="layui-input layui-input-readonly"/></td>
-            <td><input type="text"
+                       value="${attr.name}" class="layui-input layui-input-readonly"/>
+            </td>
+            <td>
+                <input type="text"
                        name="entity.list[${attrLP.index-1}].displayName"
-                       value="${attr.displayName}" class="layui-input"></td>
-            <td><input type="checkbox"
+                       value="${attr.displayName}" class="layui-input">
+            </td>
+            <td>
+                <input type="checkbox"
                        name="entity.list[${attrLP.index-1}].showInQuery"
-                       lay-skin="primary" value="true" title="作为搜索"></td>
-            <td><input type="text" name="entity.list[${attrLP.index-1}].dictType" value=""
-                       class="layui-input"></td>
+                       lay-skin="primary" value="true" checked>
+            </td>
+            <td>
+                <input type="checkbox"
+                       name=""
+                       lay-skin="primary" value="true" checked>
+            </td>
+            <td>
+                <input type="checkbox"
+                       name=""
+                       lay-skin="primary" value="true" checked>
+            </td>
+            <td>
+                <select name="entity.list[${attrLP.index-1}].formFieldType">
+                    <option value="">请选择</option>
+                    <option value="hidden">隐藏域</option>
+                    <option value="text" selected>文本框</option>
+                    <option value="date">日期</option>
+                    <option value="dateRange">日期-范围查询</option>
+                    <option value="datetime">日期时间</option>
+                    <option value="datetimeRange">日期时间-范围查询</option>
+                    <option value="uploadImage">图片上传</option>
+                    <option value="uploadFile">文件上传</option>
+                </select>
+
+            </td>
+            <td>
+                <input type="text" name="entity.list[${attrLP.index-1}].dictType" value=""
+                       class="layui-input">
+            </td>
             <td>
                 <div class="layui-btn-container verifyGroup" data-index="${attrLP.index-1}">
                     <div class="layui-btn layui-btn-xs addVerify"><i class="layui-icon">&#xe654;</i></div>
@@ -211,38 +201,39 @@
 </form>
 
 <script>
-    layui.use(['form'], function () {
+    layui.use(['form', 'table'], function () {
         var $ = layui.jquery;
         var form = layui.form;
+        var table = layui.table;
 
 
         var toolbar = {
-            getFormData: function() {
+            getFormData: function () {
                 var form = $('#updateForm');
                 var formPara = form.serializeJson();
                 return formPara;
             },
-            html:function() {
-                common.post("${ctxPath}/core/gen/html.json", toolbar.getFormData(), function(data) {
+            html: function () {
+                common.post("${ctxPath}/core/gen/html.json", toolbar.getFormData(), function (data) {
                     openCode(data)
                 });
             },
-            js:function() {
-                common.post("${ctxPath}/core/gen/js.json", toolbar.getFormData(), function(data) {
+            js: function () {
+                common.post("${ctxPath}/core/gen/js.json", toolbar.getFormData(), function (data) {
                     openCode(data)
                 });
             },
-            java:function() {
-                common.post("${ctxPath}/core/gen/java.json", toolbar.getFormData(), function(data) {
+            java: function () {
+                common.post("${ctxPath}/core/gen/java.json", toolbar.getFormData(), function (data) {
                     openCode(data)
                 });
             },
-            sql:function() { //获取选中数目
-                common.post("${ctxPath}/core/gen/sql.json", toolbar.getFormData(), function(data) {
+            sql: function () { //获取选中数目
+                common.post("${ctxPath}/core/gen/sql.json", toolbar.getFormData(), function (data) {
                     openCode(data)
                 });
             },
-            gen:function(){
+            gen: function () {
                 common.post("/core/gen/getPath.json", {}, function (path) {
                     common.prompt("代码保存路径?", path, function (newPath) {
                         var url = "/core/gen/gen.json";
@@ -254,46 +245,54 @@
                     })
                 });
             },
-            cancel:function(){
+            cancel: function () {
                 var index = parent.layer.getFrameIndex(window.name);
                 parent.layer.close(index);
             }
 
         };
 
-        var openCode = function(data){
-            var tab=[];
-            for(var key in data){
+        var openCode = function (data) {
+            var tab = [];
+            for (var key in data) {
                 var title = key;
-                var content = formatCode(key,data[key]);
-                tab.push({"title":title,"content":content});
+                var content = formatCode(key, data[key]);
+                tab.push({"title": title, "content": content});
             }
-            var index = layer.tab({
+            var index = parent.layer.tab({
                 area: ['600px', '500px'],
-                tab:tab,
-                success: function(layero, index){
-                    layui.use('code', function(){ //加载code模块
+                tab: tab,
+                success: function (layero, index) {
+                    layui.use('code', function () { //加载code模块
                         layui.code({
                             about: false
                         }); //引用code方法
                     });
                 }
             });
-            layer.full(index);
-
+            parent.layer.full(index);
         },
-        formatCode = function (name,content){
-            if(name.indexOf(".html")){
-                content =  $('<div/>').text(content).html();
+        formatCode = function (name, content) {
+            if (name.indexOf(".html")) {
+                content = $('<div/>').text(content).html();
             }
-            content = "<pre class='layui-code'>"+content+"<pre>";
+            content = "<pre class='layui-code'>" + content + "<pre>";
             return content;
         };
 
-        $('.ext-toolbar').on('click', function() {
+        $('.ext-toolbar').on('click', function () {
             var type = $(this).data('type');
             toolbar[type] ? toolbar[type].call(this) : '';
         });
     });
 
 </script>
+
+
+
+<!--#}-->
+
+
+
+
+

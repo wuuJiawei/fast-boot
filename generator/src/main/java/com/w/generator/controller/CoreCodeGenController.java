@@ -8,6 +8,7 @@ import com.w.generator.*;
 import com.w.generator.model.Attribute;
 import com.w.generator.model.Entity;
 import com.w.generator.service.CoreCodeGenService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.beetl.core.Configuration;
@@ -26,20 +27,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
+@Slf4j
 @RequestMapping("core/gen")
 @Controller
 public class CoreCodeGenController extends BaseController {
-    private final Log log = LogFactory.getLog(this.getClass());
-    private static final String MODEL = "/core/codeGen";
 
     @Autowired
     CoreCodeGenService codeGenService;
-
-    @PostConstruct
-    public void init() {
-        log.info("generator init");
-    }
 
 
     @GetMapping({"/", "index"})

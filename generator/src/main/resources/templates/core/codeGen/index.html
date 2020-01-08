@@ -1,14 +1,15 @@
-<link rel="stylesheet" href="${ctxPath}/assets/libs/layui/css/layui.css"/>
-<link rel="stylesheet" href="${ctxPath}/assets/module/admin.css"/>
-<div class="layui-btn-group">
-    <button id="table-button-edit" class="layui-btn layui-btn-primary  ext-toolbar " data-type="edit">编辑</button>
-    <button id="table-button-refresh" class="layui-btn layui-btn-primary  ext-toolbar " data-type="refresh">刷新</button>
+<!--#layout("/common/layout.html",{"title":"代码生成器"}){ -->
 
-</div>
-<table id="codeTable" lay-filter="codeTable"></table>
+<form class="layui-form toolbar" id="tableToolBar" action="javascript:;">
+    <div class="layui-form-item">
+        <w:accessButton label="编辑" action="edit"></w:accessButton>
+        <w:accessButton label="刷新" action="refresh"></w:accessButton>
+    </div>
+</form>
 
-<script type="text/javascript" src="${ctxPath}/assets/libs/layui/layui.js"></script>
-<script type="text/javascript" src="${ctxPath}/assets/js/common.js"></script>
+<table class="layui-table" id="codeTable" lay-filter="codeTable"></table>
+
+
 <script>
     layui.use(['table'], function () {
         var $ = layui.jquery;
@@ -27,12 +28,12 @@
                 },
                 {
                     field: 'tableName',
-                    title: '表名称',
+                    title: '表名',
                     sort: true
                 },
                 {
-                    field: 'name',
-                    title: '类名',
+                    field: 'comment',
+                    title: '注释',
                     sort: true
                 }
             ]]
@@ -64,3 +65,15 @@
     });
 
 </script>
+
+<!--#}-->
+
+
+
+<!--<div class="layui-btn-group">-->
+<!--    <button id="table-button-edit" class="layui-btn layui-btn-primary  ext-toolbar " data-type="edit">编辑</button>-->
+<!--    <button id="table-button-refresh" class="layui-btn layui-btn-primary  ext-toolbar " data-type="refresh">刷新</button>-->
+<!--</div>-->
+
+
+
