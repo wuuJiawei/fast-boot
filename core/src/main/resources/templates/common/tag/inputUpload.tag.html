@@ -8,8 +8,8 @@ label             字段显示名称        String        是
 class             自定义class         String        否
 id                唯一id              String        是
 name              文本框的name        String        否
-accept            上传文件类型        String        否      images（同layui）
-dir               上传到哪个目录      String        否
+accept            上传文件类型        String        否      images   支持的值：images/file/video/audio
+dir               上传到哪个目录      String        否      默认使用name
 value             值                 String        否
 
 */
@@ -43,6 +43,10 @@ value             值                 String        否
     layui.use(['upload', 'jquery'], function () {
         let jq = layui.jquery;
         let upload = layui.upload;
+
+        <!--#if(!has(dir)){-->
+        <!--# var dir = name; -->
+        <!--#}-->
 
         upload.render({
             elem: "#upload-${id!''}"

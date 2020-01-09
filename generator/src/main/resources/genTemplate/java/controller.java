@@ -4,43 +4,74 @@ import com.w.core.crud.CrudController;
 import com.w.core.crud.EditResult;
 import ${basePackage}.model.*;
 import ${basePackage}.dao.*;
+
+import org.beetl.sql.core.engine.PageQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.List;
+import java.util.ListIterator;
+
 /**
- * @author wujiawei0926@yeah.net
- * @see
- * @since 2020/1/1
+ * ${comment} 控制器
+ * \@see
+ * \@since ${date(),"yyyy-MM-dd"}
  */
-@Controller
-@RequestMapping("${target.urlBase}/${entity.code}")
+\@Controller
+\@RequestMapping("${target.urlBase}/${entity.code}")
 public class ${entity.name}Controller extends CrudController<${entity.name}, ${entity.name}Dao> {
 
-    @Autowired
+    \@Autowired
     ${entity.name}Dao dao;
 
-    @Override
+    \@Override
     protected String orderField() {
-        return "orders";
+        return "${entity.orderAttribute.name}";
     }
 
-    @Override
+    \@Override
     protected String view() {
-        return "com/w/core/CoreDict";
+        return "${target.urlBase}/${entity.code}";
     }
 
     /**
      * 数据插入前，支持做各种操作
      *
-     * @param m
-     * @return
+     * \@param m
+     * \@return
      */
-    @Override
-    public EditResult<CoreDict> insertBefore(CoreDict m) {
-        m.setCreateTime(DateUtil.date());
-        m.setDelFlag(DelFlagEnum.NORMAL.getValue());
-        m.setParent(0L);
-        return EditResult.next(m);
+    \@Override
+    public EditResult<${entity.name}> insertBefore(${entity.name} m) {
+        return super.insertBefore(m);
     }
+
+    /**
+     * 查询后重写响应数据
+     * 该方法的执行时机为分页查询结束后
+     * 适用于查询后修改数据
+     *
+     * \@param page
+     * \@return
+     */
+    \@Override
+    public PageQuery<${entity.name}> queryAfter(PageQuery<${entity.name}> page) {
+        autoConvertData(page.getList());
+        return page;
+    }
+
+    /**
+     * 自动填充并转换数据
+     *
+     * \@param list
+     */
+    private void autoConvertData(List<${entity.name}> list) {
+        ListIterator<${entity.name}> iterables = list.listIterator();
+        while (iterables.hasNext()) {
+            ${entity.name} x = iterables.next();
+
+            iterables.set(x);
+        }
+    }
+
 }

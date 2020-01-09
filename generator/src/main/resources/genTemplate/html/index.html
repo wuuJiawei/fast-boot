@@ -1,24 +1,196 @@
-<!--#layout("/common/layout.html",{"jsBase":"/js/${target.urlBase}/${entity.code}/"}){ -->
-<layui:searchForm formId="searchForm"  condition="${'${search\}'}">
-</layui:searchForm>
+<!--#layout("/common/layout.html",{"title":"${entity.comment! }"}){ -->
 
-<div class="layui-btn-group">
-    <layui:accessButton function="${entity.code}.add"  action="add">增加</layui:accessButton>
-    <layui:accessButton function="${entity.code}.edit"  action="edit">编辑</layui:accessButton>
-    <layui:accessButton function="${entity.code}.del"  action="del">删除</layui:accessButton>
-    @if(entity.includeExcel){
-     <layui:accessButton function="${entity.code}.exportDocument"  action="exportDocument">导出</layui:accessButton>
-     <layui:accessButton function="${entity.code}.importDocument"  action="importDocument">导入</layui:accessButton>
-    @}
-</div>
 
-<table id="${entity.code}Table" lay-filter="${entity.code}Table"></table>
-<!--#} -->
-<script>
+<form class="layui-form toolbar" id="tableToolBar" action="javascript:;">
+    <div class="layui-form-item">
 
-layui.use(['index'], function(){
-    var index = layui.index
-    index.init();
-});
+        @ for(x in entity.list) {
+            @ if (x.showInQuery){
+                @ var fieldFormType = x.formFieldType;
+                @ select(fieldFormType) {
+                    @ case 'text':
+        <w:inputText label="${x.comment}" name="param\@like\@${x.colName}" inline="true"/>
+                @ case 'date':
+        <w:inputDate label="${x.comment}" name="param\@between\@${x.colName}" id="${x.name}" type="date" range="true" inline="true"/>
+                @ case 'datetime':
+        <w:inputDate label="${x.comment}" name="param\@between\@${x.colName}" id="${x.name}" type="datetime" range="true" inline="true"/>
+                @ }
+            @ }
+        @ }
 
+        <div class="layui-inline">
+            <w:accessButton label="搜索" icon="layui-icon layui-icon-search" action="search"></w:accessButton>
+            <w:accessButton label="添加" icon="layui-icon layui-icon-add-circle" action="insert"></w:accessButton>
+            <w:accessButton label="删除" icon="layui-icon layui-icon-delete" action="delete"></w:accessButton>
+        </div>
+    </div>
+</form>
+
+<table class="layui-table" id="table" lay-filter="table"></table>
+
+<!-- 表格操作列 -->
+<script type="text/html" id="tableBar">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
 </script>
+
+
+<script>
+    layui.use(['layer', 'form', 'table', 'util', 'admin'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+        var table = layui.table;
+        var util = layui.util;
+        var admin = layui.admin;
+        var REQUEST_PATH = "\${ctxPath}/${target.urlBase}/${entity.code}/";
+
+        // 渲染表格
+        var insTb = table.render({
+            elem: '#table',
+            url: REQUEST_PATH + 'query',
+            page: true,
+            cellMinWidth: 100,
+            limit: 20,
+            limits: [10, 20, 50, 100, 200, 999],
+            cols: [[
+                {type: 'checkbox'},
+
+            @ for(x in entity.list) {
+                @ if (x.showInTable){
+                {field: '${x.name}', align: 'center', title: '${x.comment}', sort: true, edit: true},
+                @ }
+            @ }
+                {align: 'center', toolbar: '#tableBar', title: '操作', width: 240}
+            ]],
+            done: function (res, curr, count) {
+
+            }
+        });
+
+        // 工具条点击事件
+        table.on('tool(table)', function (obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+            if (layEvent === 'edit') { // 编辑
+                admin.open({
+                    type: 2,
+                    title: '${entity.comment}-编辑',
+                    content: REQUEST_PATH + 'edit?id=' + data.id,
+                    area: ['94%', '600px']
+                });
+            } else if (layEvent === 'del') { // 删除
+                doDel(data.id);
+            }
+        });
+
+        // 表格编辑事件
+        table.on('edit(table)', function(obj){
+            var data = {
+                id: obj.data.id
+            };
+            data[obj.field] = obj.value;
+            admin.req(REQUEST_PATH + 'update', data, function (res) {
+                admin.handleMessage(res);
+            }, 'post');
+        });
+
+        // 表格排序事件
+        table.on('sort(table)', function(obj){
+            table.reload('table', {
+                initSort: obj
+                ,where: {
+                    field: obj.field
+                    ,type: obj.type
+                }
+            });
+        });
+
+        var toolbar = {
+            insert: function () {
+                admin.open({
+                    type: 2,
+                    title: '${entity.comment}-新增',
+                    content: REQUEST_PATH + 'edit',
+                    area: ['94%', '600px']
+                });
+            },
+            delete: function () {
+                doDel();
+            },
+            export: function () {
+                common.warning('尚未开放')
+            }
+        };
+
+        $('.ext-toolbar').on('click', function() {
+            var type = $(this).data('type');
+            toolbar[type] ? toolbar[type].call(this) : '';
+        });
+
+        // 搜索
+        form.on('submit(toolbarSearch)', function (data) {
+            insTb.reload({
+                where: data.field
+                ,page: {
+                    curr: 1
+                }
+            });
+            return false;
+        });
+
+        // 注册表格重载函数到window
+        window.tableReload = function() {
+            insTb.reload();
+        };
+
+        // 导出
+        form.on('submit(toolbarExport)', function (data) {
+            top.notice.msg('正在解析数据，请稍候...', {icon: 5, timeout: 1300});
+            var u = REQUEST_PATH + "export/excel?1=1";
+            for(var key in data.field) {
+                u += ('&' + key + '=' + data.field[key])
+            }
+            window.location.href = u;
+            return false;
+        });
+
+        // 删除 (id仅支持单个id，不传则获取选中行id)
+        function doDel(id) {
+            var tipTitle = title === undefined ? '确认要删除吗？' : '确定要删除吗？';
+            var ids = [];
+            if (typeof(id) === 'number' || typeof(id) === 'string') {
+                ids.push(id);
+            } else {
+                // 获取选中行
+                var checkRows = table.checkStatus('table');
+                if (checkRows.data.length != 0) {
+                    layui.each(checkRows.data, function (i, item) {
+                        ids.push(item.id);
+                    });
+                } else {
+                    common.warning('请勾选要删除的数据')
+                }
+            }
+
+            top.layer.confirm(tipTitle, {
+                skin: 'layui-layer-admin'
+            }, function (i) {
+                layer.load(2);
+
+                common.post(REQUEST_PATH, {
+                    ids: ids.join(',')
+                }, function (res) {
+                    layer.closeAll('loading');
+                    tableReload();
+                });
+            });
+        }
+
+    });
+</script>
+
+
+
+<!--#}-->
+

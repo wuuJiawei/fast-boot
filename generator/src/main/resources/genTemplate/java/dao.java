@@ -1,18 +1,17 @@
 package ${package};
 
-import java.util.List;
 
 import org.beetl.sql.core.annotatoin.SqlResource;
 import org.beetl.sql.core.mapper.BaseMapper;
-import org.beetl.sql.core.engine.PageQuery;
 
-import  ${basePackage}.entity.*;
+import ${basePackage}.model.*;
 
 /**
- * ${entity.displayName} Dao
+ * ${comment} Dao
+ * \@see
+ * \@since ${date(),"yyyy-MM-dd"}
  */
-\@SqlResource("${entity.system}.${entity.code}")
+\@SqlResource("${target.urlBase}.${entity.code}")
 public interface ${entity.name}Dao extends BaseMapper<${entity.name}>{
-    public PageQuery<${entity.name}> queryByCondition(PageQuery query);
-    public void batchDel${entity.name}ByIds( List<Long> ids);
+
 }

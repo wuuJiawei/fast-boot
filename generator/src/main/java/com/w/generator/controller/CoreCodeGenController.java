@@ -4,13 +4,16 @@ import cn.hutool.core.util.StrUtil;
 import com.w.core.controller.BaseController;
 import com.w.core.util.PageRet;
 import com.w.core.util.Ret;
-import com.w.generator.*;
 import com.w.generator.model.Attribute;
 import com.w.generator.model.Entity;
 import com.w.generator.service.CoreCodeGenService;
+import com.w.generator.target.AutoGen;
+import com.w.generator.target.MavenProjectTarget;
+import com.w.generator.target.MdGen;
+import com.w.generator.target.WebTarget;
+import com.w.generator.target.html.HtmlCodeGen;
+import com.w.generator.target.java.JavaCodeGen;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.beetl.core.Configuration;
 import org.beetl.core.GroupTemplate;
 import org.beetl.core.Template;
@@ -20,7 +23,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.annotation.PostConstruct;
 import java.io.*;
 import java.util.HashMap;
 import java.util.List;
@@ -68,7 +70,6 @@ public class CoreCodeGenController extends BaseController {
         view.addObject("path", root + File.separator + "sample");
         view.addObject("basePackage", "com.corp.xxx");
         return view;
-
     }
 
     @PostMapping("/projectGen.json")
@@ -191,11 +192,8 @@ public class CoreCodeGenController extends BaseController {
         target.setTargetPath(path);
         target.setUrlBase(urlBase);
 
-        JSGen jsGen = new JSGen();
-        jsGen.make(target, entity);
-
-        HtmlGen htmlGen = new HtmlGen();
-        htmlGen.make(target, entity);
+        HtmlCodeGen htmlCodeGen = new HtmlCodeGen();
+        htmlCodeGen.make(target, entity);
         String preffix = urlBase.replace('/', '.');
         String basicFunctionCode = preffix + "." + entity.getCode();
         JavaCodeGen javaGen = new JavaCodeGen(basePackage, entity, basicFunctionCode);
@@ -217,8 +215,8 @@ public class CoreCodeGenController extends BaseController {
 
     @PostMapping("/getPath.json")
     @ResponseBody
-    public Ret<String> getPath() {
-        String path = MavenProjectTarget.detectRootPath();
+    public Ret<String> getPath(String module) {
+        String path = MavenProjectTarget.detectRootPath(module);
         return Ret.ok(path);
     }
 
@@ -230,29 +228,8 @@ public class CoreCodeGenController extends BaseController {
         String basePackage = data.getBasePackage();
         WebTarget webTarget = new WebTarget(entity, basePackage);
         webTarget.setUrlBase(urlBase);
-        HtmlGen htmlGen = new HtmlGen();
-        htmlGen.make(webTarget, entity);
-        Map<String, String> content = new HashMap<String, String>();
-        for (Entry<Object, String> entry : webTarget.map.entrySet()) {
-            AutoGen gen = (AutoGen) entry.getKey();
-            String code = entry.getValue();
-            content.put(gen.getName(), code);
-        }
-        return Ret.ok(content);
-
-    }
-
-    @PostMapping("/js.json")
-    @ResponseBody
-    public Ret<Map<String, String>> js(EntityInfo data) {
-
-        Entity entity = getEntitiyInfo(data);
-        String urlBase = data.getUrlBase();
-        String basePackage = data.getBasePackage();
-        WebTarget webTarget = new WebTarget(entity, basePackage);
-        webTarget.setUrlBase(urlBase);
-        JSGen jsGen = new JSGen();
-        jsGen.make(webTarget, entity);
+        HtmlCodeGen htmlCodeGen = new HtmlCodeGen();
+        htmlCodeGen.make(webTarget, entity);
         Map<String, String> content = new HashMap<String, String>();
         for (Entry<Object, String> entry : webTarget.map.entrySet()) {
             AutoGen gen = (AutoGen) entry.getKey();
@@ -317,18 +294,22 @@ public class CoreCodeGenController extends BaseController {
         Entity entity = codeGenService.getEntityInfo(info.getTableName());
         entity.setCode(info.getCode());
         entity.setName(info.getName());
-        entity.setDisplayName(info.getDisplayName());
         entity.setSystem(info.getSystem());
         entity.setAttachment(data.entity.isAttachment());
         entity.setIncludeExcel(data.entity.isIncludeExcel());
         entity.setAutoAddFunction(info.isAutoAddFunction());
         entity.setAutoAddMenu(info.isAutoAddFunction());
+        entity.setOrderAttribute(info.getOrderAttribute());
+
         for (int i = 0; i < entity.getList().size(); i++) {
             Attribute attr = entity.getList().get(i);
-            attr.setDisplayName(info.getList().get(i).getDisplayName());
-            attr.setShowInQuery(info.getList().get(i).isShowInQuery());
-            attr.setDictType(info.getList().get(i).getDictType());
-            attr.setVerifyList(info.getList().get(i).getVerifyList());
+            Attribute oriAttr = info.getList().get(i);
+            attr.setDisplayName(oriAttr.getDisplayName());
+            attr.setShowInQuery(oriAttr.isShowInQuery());
+            attr.setShowInEdit(oriAttr.isShowInEdit());
+            attr.setShowInTable(oriAttr.isShowInTable());
+            attr.setDictType(oriAttr.getDictType());
+            attr.setFormFieldType(oriAttr.getFormFieldType());
             if (attr.getName().equals(data.getNameAttr())) {
                 entity.setNameAttribute(attr);
             }
@@ -338,10 +319,8 @@ public class CoreCodeGenController extends BaseController {
             throw new RuntimeException("code,system不能为空");
         }
 
-
         return entity;
     }
-
 
     @GetMapping("/{table}/test.json")
     @ResponseBody
@@ -350,10 +329,8 @@ public class CoreCodeGenController extends BaseController {
         Entity entity = new Entity();
         entity.setCode("blog");
         entity.setName("CmsBlog");
-        entity.setDisplayName("博客");
         entity.setTableName("CMS_BLOG");
         entity.setSystem("console");
-
 
         Attribute idAttr = new Attribute();
         idAttr.setColName("id");
@@ -413,11 +390,8 @@ public class CoreCodeGenController extends BaseController {
         MavenProjectTarget target = new MavenProjectTarget(entity, basePackage);
         target.setUrlBase("admin");
 
-        JSGen jsGen = new JSGen();
-        jsGen.make(target, entity);
-
-        HtmlGen htmlGen = new HtmlGen();
-        htmlGen.make(target, entity);
+        HtmlCodeGen htmlCodeGen = new HtmlCodeGen();
+        htmlCodeGen.make(target, entity);
         String preffix = urlBase.replace('/', '.');
         String basicFunctionCode = preffix + "." + entity.getCode();
         JavaCodeGen javaGen = new JavaCodeGen(basePackage, entity, basicFunctionCode);

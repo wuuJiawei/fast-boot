@@ -1,6 +1,14 @@
-package com.w.generator;
+package com.w.generator.target;
 
 import com.w.generator.model.Entity;
+import com.w.generator.target.AutoGen;
+import com.w.generator.target.BaseTarget;
+import com.w.generator.target.MdGen;
+import com.w.generator.target.html.EditGen;
+import com.w.generator.target.html.IndexGen;
+import com.w.generator.target.java.ControllerGen;
+import com.w.generator.target.java.DaoGen;
+import com.w.generator.target.java.EntityGen;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -22,34 +30,18 @@ public class MavenProjectTarget extends BaseTarget {
     public void flush(AutoGen gen, String content) {
         String name = gen.getName();
         String target = null;
-        if (gen instanceof JSDelGen) {
-            target = getResourcePath() + "/static/js/" + this.urlBase + "/" + entity.getCode() + "/" + name;
-        } else if (gen instanceof JSEditGen) {
-            target = getResourcePath() + "/static/js/" + this.urlBase + "/" + entity.getCode() + "/" + name;
-        } else if (gen instanceof JSAddGen) {
-            target = getResourcePath() + "/static/js/" + this.urlBase + "/" + entity.getCode() + "/" + name;
-        } else if (gen instanceof JSApiGen) {
-            target = getResourcePath() + "/static/js/" + this.urlBase + "/" + entity.getCode() + "/" + name;
-        } else if (gen instanceof JSIndexGen) {
-            target = getResourcePath() + "/static/js/" + this.urlBase + "/" + entity.getCode() + "/" + name;
-        } else if (gen instanceof HtmlIndexGen) {
+        if (gen instanceof IndexGen) {
             target = getResourcePath() + "/templates/" + this.urlBase + "/" + entity.getCode() + "/" + name;
-        } else if (gen instanceof HtmlEditGen) {
-            target = getResourcePath() + "/templates/" + this.urlBase + "/" + entity.getCode() + "/" + name;
-        } else if (gen instanceof HtmlAddGen) {
+        } else if (gen instanceof EditGen) {
             target = getResourcePath() + "/templates/" + this.urlBase + "/" + entity.getCode() + "/" + name;
         } else if (gen instanceof MdGen) {
-            target = getResourcePath() + "/sql/" + entity.getSystem() + "/" + name;
-        } else if (gen instanceof JavaEntityGen) {
-            target = getSrcPath() + "/" + basePackagePath + "/entity/" + name;
-        } else if (gen instanceof JavaDaoGen) {
+            target = getResourcePath() + "/sql/" + this.urlBase + "/" + name;
+        } else if (gen instanceof EntityGen) {
+            target = getSrcPath() + "/" + basePackagePath + "/model/" + name;
+        } else if (gen instanceof DaoGen) {
             target = getSrcPath() + "/" + basePackagePath + "/dao/" + name;
-        } else if (gen instanceof JavaQueryGen) {
-            target = getSrcPath() + "/" + basePackagePath + "/web/query/" + name;
-        } else if (gen instanceof JavaServiceGen) {
-            target = getSrcPath() + "/" + basePackagePath + "/service/" + name;
-        } else if (gen instanceof JavaControllerGen) {
-            target = getSrcPath() + "/" + basePackagePath + "/web/" + name;
+        } else if (gen instanceof ControllerGen) {
+            target = getSrcPath() + "/" + basePackagePath + "/controller/" + name;
         }
 
         if (target == null) {
@@ -105,6 +97,10 @@ public class MavenProjectTarget extends BaseTarget {
             return detectRootPath();
         }
 
+    }
+
+    public static String detectRootPath(String module) {
+        return detectRootPath() + "/" + module;
     }
 
     public static String detectRootPath() {

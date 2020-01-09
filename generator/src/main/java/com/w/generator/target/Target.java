@@ -1,5 +1,6 @@
-package com.w.generator;
+package com.w.generator.target;
 
+import com.w.generator.target.AutoGen;
 import org.beetl.core.GroupTemplate;
 
 /**

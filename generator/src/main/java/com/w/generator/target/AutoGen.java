@@ -1,4 +1,4 @@
-package com.w.generator;
+package com.w.generator.target;
 
 
 import com.w.generator.model.Entity;

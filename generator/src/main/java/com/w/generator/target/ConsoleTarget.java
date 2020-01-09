@@ -1,4 +1,5 @@
-package com.w.generator;
+package com.w.generator.target;
+
 
 
 /**
@@ -7,7 +8,7 @@ package com.w.generator;
  *
  */
 
-public class ConsoleTarget extends  BaseTarget {
+public class ConsoleTarget extends BaseTarget {
 	public ConsoleTarget() {
 		
 	}

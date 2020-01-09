@@ -1,4 +1,4 @@
-package com.w.generator;
+package com.w.generator.target;
 
 import com.w.generator.model.Entity;
 
@@ -16,8 +16,6 @@ public class WebTarget extends MavenProjectTarget {
     @Override
     public void flush(AutoGen gen, String content) {
         map.put(gen, content);
-
-
     }
 
 

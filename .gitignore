@@ -3,3 +3,5 @@
 .idea
 *.iml
 **/rabel.xml
+/console/src/main/resources/rebel.xml
+/core/src/main/resources/rebel.xml

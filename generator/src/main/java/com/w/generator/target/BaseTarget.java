@@ -1,4 +1,4 @@
-package com.w.generator;
+package com.w.generator.target;
 
 import org.beetl.core.Configuration;
 import org.beetl.core.Context;
