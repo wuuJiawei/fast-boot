@@ -1,0 +1,67 @@
+<!--#layout("/common/layout.html",{"title":"权限表"}){ -->
+
+<form class="layui-form" id="updateForm">
+
+	<div class="layui-row">
+		<div class="layui-col-md6">
+
+		</div>
+		<div class="layui-col-md6">
+
+		</div>
+	</div>
+
+	<input type="hidden" name="id" value="${model.id! }" />
+	<w:inputText label="权限名称" name="authorityName" value="${model.authorityName! }"/>
+	<w:inputText label="授权标识" name="authority" value="${model.authority! }"/>
+	<w:inputText label="菜单url" name="url" value="${model.url! }"/>
+	<w:inputText label="父id,0表示无父级" name="parentId" value="${model.parentId! }"/>
+	<w:inputText label="权限类型,0菜单,1按钮" name="isMenu" value="${model.isMenu! }"/>
+	<w:inputText label="排序号" name="orderNumber" value="${model.orderNumber! }"/>
+	<w:inputText label="菜单图标" name="icon" value="${model.icon! }"/>
+
+	<w:submitButtons id="updateButton" />
+</form>
+
+
+<script>
+	layui.use(['layer', 'form', 'table', 'util', 'admin'], function () {
+		var $ = layui.jquery;
+		var layer = layui.layer;
+		var form = layui.form;
+		var table = layui.table;
+		var util = layui.util;
+		var admin = layui.admin;
+		var REQUEST_PATH = "${ctxPath}/core/coreAuthorities/";
+		<!--#if(has(model) && model.id != null){-->
+		REQUEST_PATH += "update";
+		<!--#}else{-->
+		REQUEST_PATH += "insert";
+		<!--#}-->
+
+		form.on('submit(form)', function (data) {
+			layer.load(2);
+			var d = data.field;
+			common.post(REQUEST_PATH, d, function (res) {
+				layer.closeAll('loading');
+				parent.window.tableReload();
+				common.closeThisChildLayer();
+			});
+			return false;
+		});
+
+		$("#updateButton-cancel").click(function () {
+			common.closeThisChildLayer();
+		});
+
+	});
+</script>
+
+
+
+<!--#}-->
+
+
+
+
+

@@ -1,5 +1,9 @@
 <button id="table-button-${action}"
-        class="layui-btn icon-btn ext-toolbar"
+        class="layui-btn icon-btn ext-toolbar
+<!--#if(type!'' != ''){-->
+layui-btn-${type}
+<!--#}-->
+"
         data-type="${action}">
     <!--# if(id!'' != ''){ -->
     <i class="${icon}"></i>

@@ -1,0 +1,195 @@
+<!--#layout("/common/layout.html",{"title":"权限表"}){ -->
+
+
+<form class="layui-form toolbar" id="tableToolBar" action="javascript:;">
+    <div class="layui-form-item">
+
+        <w:inputText label="权限id" name="param@like@id" inline="true"/>
+        <w:inputText label="权限名称" name="param@like@authority_name" inline="true"/>
+        <w:inputText label="授权标识" name="param@like@authority" inline="true"/>
+        <w:inputText label="菜单url" name="param@like@url" inline="true"/>
+        <w:inputText label="父id,0表示无父级" name="param@like@parent_id" inline="true"/>
+        <w:inputText label="权限类型,0菜单,1按钮" name="param@like@is_menu" inline="true"/>
+        <w:inputText label="排序号" name="param@like@order_number" inline="true"/>
+        <w:inputText label="菜单图标" name="param@like@icon" inline="true"/>
+        <w:inputDate label="创建时间" name="param@between@ctime" id="ctime" type="datetime" range="true" inline="true"/>
+
+        <div class="layui-inline">
+            <w:accessButton label="搜索" icon="layui-icon layui-icon-search" action="search"></w:accessButton>
+            <w:accessButton label="添加" icon="layui-icon layui-icon-add-circle" action="insert"></w:accessButton>
+            <w:accessButton label="删除" icon="layui-icon layui-icon-delete" action="delete"></w:accessButton>
+        </div>
+    </div>
+</form>
+
+<table class="layui-table" id="table" lay-filter="table"></table>
+
+<!-- 表格操作列 -->
+<script type="text/html" id="tableBar">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+
+<script>
+    layui.use(['layer', 'form', 'table', 'util', 'admin'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+        var table = layui.table;
+        var util = layui.util;
+        var admin = layui.admin;
+        var REQUEST_PATH = "${ctxPath}/core/coreAuthorities/";
+
+        // 渲染表格
+        var insTb = table.render({
+            elem: '#table',
+            url: REQUEST_PATH + 'query',
+            page: true,
+            cellMinWidth: 100,
+            limit: 20,
+            limits: [10, 20, 50, 100, 200, 999],
+            cols: [[
+                {type: 'checkbox'},
+
+                {field: 'id', align: 'center', title: '权限id', sort: true, edit: true},
+                {field: 'authorityName', align: 'center', title: '权限名称', sort: true, edit: true},
+                {field: 'authority', align: 'center', title: '授权标识', sort: true, edit: true},
+                {field: 'url', align: 'center', title: '菜单url', sort: true, edit: true},
+                {field: 'parentId', align: 'center', title: '父id,0表示无父级', sort: true, edit: true},
+                {field: 'isMenu', align: 'center', title: '权限类型,0菜单,1按钮', sort: true, edit: true},
+                {field: 'orderNumber', align: 'center', title: '排序号', sort: true, edit: true},
+                {field: 'icon', align: 'center', title: '菜单图标', sort: true, edit: true},
+                {align: 'center', toolbar: '#tableBar', title: '操作', width: 240}
+            ]],
+            done: function (res, curr, count) {
+
+            }
+        });
+
+        // 工具条点击事件
+        table.on('tool(table)', function (obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+            if (layEvent === 'edit') { // 编辑
+                admin.open({
+                    type: 2,
+                    title: '权限表-编辑',
+                    content: REQUEST_PATH + 'edit?id=' + data.id,
+                    area: ['94%', '600px']
+                });
+            } else if (layEvent === 'del') { // 删除
+                doDel(data.id);
+            }
+        });
+
+        // 表格编辑事件
+        table.on('edit(table)', function(obj){
+            var data = {
+                id: obj.data.id
+            };
+            data[obj.field] = obj.value;
+            admin.req(REQUEST_PATH + 'update', data, function (res) {
+                admin.handleMessage(res);
+            }, 'post');
+        });
+
+        // 表格排序事件
+        table.on('sort(table)', function(obj){
+            table.reload('table', {
+                initSort: obj
+                ,where: {
+                    field: obj.field
+                    ,type: obj.type
+                }
+            });
+        });
+
+        var toolbar = {
+            insert: function () {
+                admin.open({
+                    type: 2,
+                    title: '权限表-新增',
+                    content: REQUEST_PATH + 'edit',
+                    area: ['94%', '600px']
+                });
+            },
+            delete: function () {
+                doDel();
+            },
+            export: function () {
+                common.warning('尚未开放')
+            }
+        };
+
+        $('.ext-toolbar').on('click', function() {
+            var type = $(this).data('type');
+            toolbar[type] ? toolbar[type].call(this) : '';
+        });
+
+        // 搜索
+        form.on('submit(toolbarSearch)', function (data) {
+            insTb.reload({
+                where: data.field
+                ,page: {
+                    curr: 1
+                }
+            });
+            return false;
+        });
+
+        // 注册表格重载函数到window
+        window.tableReload = function() {
+            insTb.reload();
+        };
+
+        // 导出
+        form.on('submit(toolbarExport)', function (data) {
+            top.notice.msg('正在解析数据，请稍候...', {icon: 5, timeout: 1300});
+            var u = REQUEST_PATH + "export/excel?1=1";
+            for(var key in data.field) {
+                u += ('&' + key + '=' + data.field[key])
+            }
+            window.location.href = u;
+            return false;
+        });
+
+        // 删除 (id仅支持单个id，不传则获取选中行id)
+        function doDel(id) {
+            var tipTitle = title === undefined ? '确认要删除吗？' : '确定要删除吗？';
+            var ids = [];
+            if (typeof(id) === 'number' || typeof(id) === 'string') {
+                ids.push(id);
+            } else {
+                // 获取选中行
+                var checkRows = table.checkStatus('table');
+                if (checkRows.data.length != 0) {
+                    layui.each(checkRows.data, function (i, item) {
+                        ids.push(item.id);
+                    });
+                } else {
+                    common.warning('请勾选要删除的数据')
+                }
+            }
+
+            top.layer.confirm(tipTitle, {
+                skin: 'layui-layer-admin'
+            }, function (i) {
+                layer.load(2);
+
+                common.post(REQUEST_PATH, {
+                    ids: ids.join(',')
+                }, function (res) {
+                    layer.closeAll('loading');
+                    tableReload();
+                });
+            });
+        }
+
+    });
+</script>
+
+
+
+<!--#}-->
+

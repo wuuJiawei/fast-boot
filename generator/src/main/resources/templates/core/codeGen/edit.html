@@ -4,8 +4,9 @@
     <w:accessButton label="预览Java" action="java"></w:accessButton>
     <w:accessButton label="预览SQL" action="sql"></w:accessButton>
     <w:accessButton label="预览HTML" action="html"></w:accessButton>
-    <w:accessButton label="立即生成" action="gen"></w:accessButton>
+    <w:accessButton label="立即生成" action="gen" type="danger"></w:accessButton>
     <w:accessButton label="取消" action="cancel"></w:accessButton>
+    <w:accessButton label="缓存数据" action="cache"></w:accessButton>
 </div>
 
 <form class="layui-form" id="updateForm">
@@ -235,6 +236,7 @@
         var table = layui.table;
 
 
+
         var toolbar = {
             getFormData: function () {
                 var form = $('#updateForm');
@@ -266,6 +268,7 @@
                     module: $('#module').val()
                 }, function (path) {
                     common.prompt("代码保存路径?", path, function (newPath) {
+                        toolbar.cache();
                         var url = "/core/gen/gen.json";
                         var formPara = toolbar.getFormData();
                         formPara.path = newPath;
@@ -278,6 +281,30 @@
             cancel: function () {
                 var index = parent.layer.getFrameIndex(window.name);
                 parent.layer.close(index);
+            },
+            // 缓存部分数据
+            cache: function () {
+                layui.data('gen', {
+                    key: 'basePackage'
+                    ,value: $('input[name="basePackage"]').val()
+                });
+                layui.data('gen', {
+                    key: 'urlBase'
+                    ,value: $('input[name="urlBase"]').val()
+                });
+                layui.data('gen', {
+                    key: 'system'
+                    ,value: $('input[name="entity.system"]').val()
+                });
+            },
+            // 展示缓存数据
+            showCache: function () {
+                var genCache = layui.data('gen');
+                if (genCache !== undefined) {
+                    $('input[name="basePackage"]').val(genCache.basePackage);
+                    $('input[name="urlBase"]').val(genCache.urlBase);
+                    $('input[name="entity.system"]').val(genCache.system)
+                }
             }
 
         };
@@ -314,6 +341,9 @@
             var type = $(this).data('type');
             toolbar[type] ? toolbar[type].call(this) : '';
         });
+
+        // 展示缓存值
+        toolbar.showCache();
     });
 
 </script>
