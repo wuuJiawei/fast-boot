@@ -18,6 +18,8 @@
         <hikaricp.version>3.4.1</hikaricp.version>
         <mysql.connector.version>5.1.48</mysql.connector.version>
         <hutool.version>5.1.0</hutool.version>
+        <jjwt.version>0.9.1</jjwt.version>
+        <shiro.starter.version>1.4.2</shiro.starter.version>
     </properties>
 
     <dependencies>
@@ -70,6 +72,17 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>${mysql.connector.version}</version>
+        </dependency>
+
+        <!-- 权限校验 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>${jjwt.version}</version>
         </dependency>
 
         <!-- 开发工具包 -->
